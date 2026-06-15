@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duolingo Clone - Neocities</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+        .duo-btn-green {
+            background-color: #58cc02;
+            border-bottom: 4px solid #46a302;
+        }
+        .duo-btn-green:active {
+            border-bottom-width: 0px;
+            margin-top: 4px;
+        }
+        .duo-btn-blue {
+            background-color: #1cb0f6;
+            border-bottom: 4px solid #1899d6;
+        }
+        .duo-btn-blue:active {
+            border-bottom-width: 0px;
+            margin-top: 4px;
+        }
+        .duo-card {
+            border: 2px solid #e5e5e5;
+            border-bottom-width: 4px;
+        }
+        .duo-card:active {
+            border-bottom-width: 2px;
+        }
+    </style>
+</head>
+<body class="bg-white text-[#3c3c3c] antialiased">
+
+    <div id="auth-screen" class="flex flex-col items-center justify-center min-h-screen px-4">
+        <div class="text-center max-w-sm w-full">
+            <div class="text-6xl mb-4">🦉</div>
+            <h1 class="text-3xl font-extrabold text-[#58cc02] tracking-wide mb-8">duolingo</h1>
+            
+            <div class="space-y-3 mb-6">
+                <input id="email-input" type="email" placeholder="E-mail" class="w-full px-4 py-3 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-2xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
+                <input id="password-input" type="password" placeholder="Senha" class="w-full px-4 py-3 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-2xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
+            </div>
+
+            <button id="btn-login-email" class="w-full duo-btn-green text-white font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-3 transition-all">
+                Entrar com Email
+            </button>
+            <button id="btn-register-email" class="w-full border-2 border-[#e5e5e5] border-bottom-4 hover:bg-[#f7f7f7] font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-6 transition-all">
+                Criar Conta
+            </button>
+
+            <div class="relative flex py-4 items-center">
+                <div class="flex-grow border-t border-[#e5e5e5]"></div>
+                <span class="flex-shrink mx-4 text-[#afafaf] font-bold text-xs uppercase">Ou</span>
+                <div class="flex-grow border-t border-[#e5e5e5]"></div>
+            </div>
+
+            <button id="btn-login-google" class="w-full border-2 border-[#e5e5e5] hover:bg-[#f7f7f7] font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+                Entrar com o Google
+            </button>
+        </div>
+    </div>
+
+    <div id="main-screen" class="hidden min-h-screen flex flex-col md:flex-row">
+        
+        <nav class="w-full md:w-64 border-r-2 border-[#e5e5e5] p-4 flex flex-row md:flex-col justify-between md:justify-start gap-2 fixed bottom-0 md:relative bg-white z-50">
+            <div class="hidden md:block text-2xl font-extrabold text-[#58cc02] tracking-wide p-4 mb-6">duolingo</div>
+            
+            <button onclick="switchTab('learn')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777] active:text-[#1cb0f6]">
+                <span class="text-xl">🏡</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Aprender</span>
+            </button>
+            <button onclick="switchTab('profile')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777] active:text-[#1cb0f6]">
+                <span id="nav-avatar" class="text-xl">🦉</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Perfil</span>
+            </button>
+            
+            <button id="btn-logout" class="hidden md:flex items-center gap-4 p-3 w-full hover:bg-red-50 rounded-xl font-extrabold text-red-500 mt-auto">
+                <span>🚪</span> <span class="text-sm uppercase tracking-wider">Sair</span>
+            </button>
+        </nav>
+
+        <main class="flex-1 p-6 mb-20 md:mb-0 max-w-2xl mx-auto w-full">
+            
+            <div class="flex items-center justify-end gap-6 border-b-2 border-[#e5e5e5] pb-4 mb-6 font-extrabold text-sm">
+                <div class="flex items-center gap-2 text-orange-500">
+                    <span>🔥</span> <span id="user-streak">0</span>
+                </div>
+                <div class="flex items-center gap-2 text-[#ffc800]">
+                    <span>💎</span> <span id="user-lingots">50</span>
+                </div>
+            </div>
+
+            <div id="tab-learn" class="tab-content">
+                <div class="mb-8">
+                    <label class="block text-xs font-extrabold text-[#afafaf] uppercase tracking-wider mb-2">Curso Atual</label>
+                    <select id="course-selector" class="bg-white border-2 border-[#e5e5e5] rounded-xl px-4 py-2 font-bold focus:outline-none">
+                        <option value="en">🇺🇸 Inglês</option>
+                        <option value="es">🇪🇸 Espanhol</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col items-center gap-8 py-4">
+                    <div class="text-center">
+                        <button onclick="startLesson()" class="w-20 h-20 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-3xl font-bold shadow-[0_6px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_4px_0_#46a302] transition-all">
+                            💬
+                        </button>
+                        <p class="font-extrabold mt-3 text-sm">Saudações</p>
+                    </div>
+
+                    <div class="text-center opacity-60">
+                        <button class="w-20 h-20 bg-[#1cb0f6] text-white rounded-full flex items-center justify-center text-3xl font-bold shadow-[0_6px_0_#1899d6] cursor-not-allowed">
+                            🍎
+                        </button>
+                        <p class="font-extrabold mt-3 text-sm">Comida</p>
+                    </div>
+                </div>
+
+                <div id="lesson-modal" class="hidden fixed inset-0 bg-white z-50 p-6 flex flex-col justify-between">
+                    <div class="flex justify-between items-center">
+                        <button onclick="closeLesson()" class="text-2xl font-bold text-[#afafaf]">✕</button>
+                        <div class="w-full mx-4 bg-[#e5e5e5] h-4 rounded-full overflow-hidden">
+                            <div id="lesson-progress" class="bg-[#58cc02] h-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center max-w-md mx-auto my-auto">
+                        <h2 id="lesson-question" class="text-2xl font-extrabold mb-8">Como se diz "Olá"?</h2>
+                        <div id="lesson-options" class="grid grid-cols-1 gap-3">
+                            </div>
+                    </div>
+
+                    <button id="lesson-submit" onclick="checkAnswer()" class="w-full max-w-md mx-auto duo-btn-blue text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider">
+                        Verificar
+                    </button>
+                </div>
+            </div>
+
+            <div id="tab-profile" class="tab-content hidden">
+                <div class="duo-card rounded-2xl p-6 mb-6 flex items-center gap-6">
+                    <div class="relative group">
+                        <div id="profile-avatar-display" class="text-6xl bg-[#f7f7f7] p-4 rounded-full border-2 border-[#e5e5e5]">🦉</div>
+                        <select id="avatar-selector" class="absolute inset-0 opacity-0 cursor-pointer">
+                            <option value="🦉">🦉 Coruja</option>
+                            <option value="🐱">🐱 Gatinho</option>
+                            <option value="🦊">🦊 Raposa</option>
+                            <option value="🐻">🐻 Urso</option>
+                            <option value="🐸">🐸 Sapinho</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h2 id="profile-name" class="text-2xl font-extrabold">Carregando...</h2>
+                        <p id="profile-email" class="text-[#afafaf] font-bold text-sm"></p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="duo-card rounded-2xl p-4 text-center">
+                        <span class="text-2xl">⚡</span>
+                        <h3 class="font-extrabold text-xl mt-1" id="profile-xp">0</h3>
+                        <p class="text-[#afafaf] text-xs font-bold uppercase">Total de XP</p>
+                    </div>
+                    <div class="duo-card rounded-2xl p-4 text-center">
+                        <span class="text-2xl">👑</span>
+                        <h3 class="font-extrabold text-xl mt-1" id="profile-level">1</h3>
+                        <p class="text-[#afafaf] text-xs font-bold uppercase">Nível do Perfil</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        // Configuração do Firebase fornecida
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3gIAvakHjgEJjZyfvGQaDO83QiW982eo",
+            authDomain: "duolingo-neocities.firebaseapp.com",
+            databaseURL: "https://duolingo-neocities-default-rtdb.firebaseio.com",
+            projectId: "duolingo-neocities",
+            storageBucket: "duolingo-neocities.firebasestorage.app",
+            messagingSenderId: "1090128961284",
+            appId: "1:1090128961284:web:0cae3df7633128014b7a51",
+            measurementId: "G-JSTRBFSZ6W"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Estado local do App
+        let currentUser = null;
+        let userData = { xp: 0, streak: 0, lingots: 50, avatar: "🦉", currentCourse: "en" };
+        let currentLessonData = null;
+        let currentStep = 0;
+
+        // Banco de Questões Simples
+        const lessonsDB = {
+            en: [
+                { q: 'Como se diz "Olá"?', options: ['Hello', 'Goodbye', 'Apple'], correct: 0 },
+                { q: 'Como se diz "Obrigado"?', options: ['Please', 'Thank you', 'Water'], correct: 1 }
+            ],
+            es: [
+                { q: 'Como se diz "Olá"?', options: ['Hola', 'Adiós', 'Manzana'], correct: 0 },
+                { q: 'Como se diz "Obrigado"?', options: ['Por favor', 'Gracias', 'Agua'], correct: 1 }
+            ]
+        };
+
+        // --- AUTH LOGIC ---
+        const emailInput = document.getElementById('email-input');
+        const passwordInput = document.getElementById('password-input');
+
+        document.getElementById('btn-login-email').addEventListener('click', () => {
+            signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value).catch(err => alert(err.message));
+        });
+
+        document.getElementById('btn-register-email').addEventListener('click', () => {
+            createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+                .then((cred) => {
+                    // Inicializa os dados do novo usuário no Realtime Database
+                    set(ref(db, 'users/' + cred.user.uid), userData);
+                }).catch(err => alert(err.message));
+        });
+
+        document.getElementById('btn-login-google').addEventListener('click', () => {
+            signInWithPopup(auth, googleProvider).then((cred) => {
+                // Checa se usuário já tem dados cadastrados, senão cria
+                get(ref(db, 'users/' + cred.user.uid)).then((snapshot) => {
+                    if (!snapshot.exists()) {
+                        set(ref(db, 'users/' + cred.user.uid), userData);
+                    }
+                });
+            }).catch(err => alert(err.message));
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+        // Monitorar Status de Autenticação
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-screen').classList.remove('hidden');
+                syncUserData();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('main-screen').classList.add('hidden');
+            }
+        });
+
+        // --- DATA SYNC ---
+        async function syncUserData() {
+            if (!currentUser) return;
+            const snapshot = await get(ref(db, 'users/' + currentUser.uid));
+            if (snapshot.exists()) {
+                userData = { ...userData, ...snapshot.val() };
+            }
+            
+            // Atualizar UI
+            document.getElementById('user-streak').innerText = userData.streak || 0;
+            document.getElementById('user-lingots').innerText = userData.lingots || 50;
+            document.getElementById('profile-name').innerText = currentUser.displayName || 'Estudante';
+            document.getElementById('profile-email').innerText = currentUser.email;
+            document.getElementById('profile-xp').innerText = userData.xp || 0;
+            document.getElementById('profile-level').innerText = Math.floor((userData.xp || 0) / 100) + 1;
+            document.getElementById('profile-avatar-display').innerText = userData.avatar || "🦉";
+            document.getElementById('nav-avatar').innerText = userData.avatar || "🦉";
+            document.getElementById('course-selector').value = userData.currentCourse || "en";
+        }
+
+        // Mudar Avatar
+        document.getElementById('avatar-selector').addEventListener('change', (e) => {
+            const newAvatar = e.target.value;
+            update(ref(db, 'users/' + currentUser.uid), { avatar: newAvatar });
+            syncUserData();
+        });
+
+        // Mudar Curso
+        document.getElementById('course-selector').addEventListener('change', (e) => {
+            const newCourse = e.target.value;
+            update(ref(db, 'users/' + currentUser.uid), { currentCourse: newCourse });
+            syncUserData();
+        });
+
+        // --- SISTEMA DE LIÇÕES ---
+        window.startLesson = function() {
+            const currentCourse = document.getElementById('course-selector').value;
+            currentLessonData = lessonsDB[currentCourse];
+            currentStep = 0;
+            document.getElementById('lesson-modal').classList.remove('hidden');
+            renderStep();
+        }
+
+        window.closeLesson = function() {
+            document.getElementById('lesson-modal').classList.add('hidden');
+        }
+
+        function renderStep() {
+            if (currentStep >= currentLessonData.length) {
+                // Lição Finalizada!
+                alert("Parabéns! Você concluiu a lição e ganhou +10 XP!");
+                const totalXp = (userData.xp || 0) + 10;
+                update(ref(db, 'users/' + currentUser.uid), { xp: totalXp, streak: 1 });
+                syncUserData();
+                closeLesson();
+                return;
+            }
+
+            const stepData = currentLessonData[currentStep];
+            document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
+            document.getElementById('lesson-question').innerText = stepData.q;
+            
+            const optionsContainer = document.getElementById('lesson-options');
+            optionsContainer.innerHTML = '';
+            
+            stepData.options.forEach((opt, index) => {
+                optionsContainer.innerHTML += `
+                    <button onclick="selectOption(${index})" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] hover:bg-[#f7f7f7] transition-all" data-index="${index}">
+                        ${opt}
+                    </button>
+                `;
+            });
+            
+            window.selectedOptionIndex = null;
+        }
+
+        window.selectOption = function(index) {
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]');
+                btn.classList.add('border-[#e5e5e5]');
+            });
+            const selectedBtn = document.querySelector(`[data-index="${index}"]`);
+            selectedBtn.classList.remove('border-[#e5e5e5]');
+            selectedBtn.classList.add('border-[#1cb0f6]', 'bg-[#ddf4ff]');
+            window.selectedOptionIndex = index;
+        }
+
+        window.checkAnswer = function() {
+            if (window.selectedOptionIndex === null) {
+                alert("Selecione uma opção primeiro!");
+                return;
+            }
+            
+            const stepData = currentLessonData[currentStep];
+            if (window.selectedOptionIndex === stepData.correct) {
+                alert("Resposta Correta! Maravilhoso!");
+                currentStep++;
+                renderStep();
+            } else {
+                alert(`Errado! A resposta correta era: ${stepData.options[stepData.correct]}`);
+            }
+        }
+
+        // --- SISTEMA DE ABAS ---
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
