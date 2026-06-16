@@ -25,6 +25,12 @@
         .duo-card { border: 2px solid #e5e5e5; border-bottom-width: 4px; }
         .duo-card:active { border-bottom-width: 2px; }
         
+        /* Efeitos Visuais de Assinatura */
+        .meta-aura { filter: drop-shadow(0 0 8px #eab308); animation: gold-glow 2s infinite alternate; }
+        @keyframes gold-glow {
+            0% { filter: drop-shadow(0 0 4px #eab308); }
+            100% { filter: drop-shadow(0 0 14px #f59e0b); }
+        }
         @keyframes pulse-fire {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px #f97316); }
             50% { transform: scale(1.15); filter: drop-shadow(0 0 12px #ef4444); }
@@ -68,6 +74,9 @@
                 <span class="text-xl">👥</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Social</span>
                 <span id="notif-badge" class="hidden absolute top-2 left-7 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
             </button>
+            <button onclick="switchTab('shop')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
+                <span class="text-xl">🛒</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Loja</span>
+            </button>
             <button id="btn-logout" class="hidden md:flex items-center gap-4 p-3 w-full hover:bg-red-50 rounded-xl font-extrabold text-red-500 mt-auto">
                 <span>🚪</span> <span class="text-sm uppercase tracking-wider">Sair</span>
             </button>
@@ -77,6 +86,7 @@
         <main class="flex-1 p-6 mb-20 md:mb-0 max-w-2xl mx-auto w-full">
             <!-- Barra de Status Superior -->
             <div class="flex items-center justify-end gap-6 border-b-2 border-[#e5e5e5] pb-4 mb-6 font-extrabold text-sm">
+                <div id="premium-badge" class="hidden px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"></div>
                 <div id="streak-container" class="flex items-center gap-2 text-orange-500">
                     <span id="streak-icon" class="text-xl">🔥</span> <span id="user-streak">0</span> dias
                 </div>
@@ -97,7 +107,6 @@
                     </select>
                 </div>
 
-                <!-- Árvore Dinâmica de Fases -->
                 <div id="dynamic-skills-tree" class="flex flex-col items-center gap-8 py-6"></div>
 
                 <!-- Modal de Estudo Adaptativo -->
@@ -112,7 +121,10 @@
 
                     <div id="lesson-main-content" class="text-center max-w-md mx-auto my-auto w-full space-y-4">
                         <div id="activity-type-badge" class="inline-block px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-extrabold uppercase tracking-wide"></div>
-                        <h2 id="lesson-question" class="text-2xl font-extrabold">Questão</h2>
+                        <div class="flex items-center justify-center gap-3">
+                            <h2 id="lesson-question" class="text-2xl font-extrabold">Questão</h2>
+                            <button onclick="triggerVoiceRepetition()" class="bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-full text-sm">🔊 Ouvir</button>
+                        </div>
                         <div id="lesson-options" class="grid grid-cols-1 gap-3 pt-4"></div>
                     </div>
 
@@ -123,12 +135,12 @@
                 </div>
             </div>
 
-            <!-- TAB: PERFIL & AVATAR BUILDER -->
+            <!-- TAB: PERFIL -->
             <div id="tab-profile" class="tab-content hidden">
                 <div class="duo-card rounded-2xl p-6 mb-6 flex flex-col sm:flex-row items-center gap-6 bg-white relative">
                     <div class="flex flex-col items-center gap-2">
                         <div id="profile-avatar-render" class="w-32 h-32 rounded-full border-4 border-[#e5e5e5] shadow-inner overflow-hidden bg-gray-100"></div>
-                        <button onclick="openAvatarBuilder()" class="text-xs bg-[#1cb0f6] text-white font-extrabold px-3 py-1.5 rounded-xl uppercase tracking-wider shadow-[0_3px_0_#1899d6] active:translate-y-[2px] active:shadow-none">Editar Boneco</button>
+                        <button onclick="openAvatarBuilder()" class="text-xs bg-[#1cb0f6] text-white font-extrabold px-3 py-1.5 rounded-xl uppercase tracking-wider shadow-[0_3px_0_#1899d6]">Editar Boneco</button>
                     </div>
                     <div class="flex-1 w-full text-center sm:text-left">
                         <div class="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -150,7 +162,7 @@
                         <div><label class="block mb-1 text-gray-500">Acessórios</label><select id="av-accessory" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white" onchange="previewAvatar()"><option value="none">Nenhum</option><option value="glasses">Óculos</option><option value="hat">Boné</option></select></div>
                         <div><label class="block mb-1 text-gray-500">Fundo</label><select id="av-bg" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white" onchange="previewAvatar()"><option value="#ddf4ff">Céu</option><option value="#e8fcda">Verde</option><option value="#fff1cb">Ouro</option></select></div>
                     </div>
-                    <div class="flex gap-2 mt-4"><button onclick="saveAvatar()" class="flex-1 bg-[#58cc02] text-white font-extrabold py-2 rounded-xl text-sm uppercase tracking-wide shadow-[0_3px_0_#46a302]">Salvar</button><button onclick="closeAvatarBuilder()" class="bg-gray-300 text-gray-700 font-extrabold px-4 py-2 rounded-xl text-sm">Voltar</button></div>
+                    <div class="flex gap-2 mt-4"><button onclick="saveAvatar()" class="flex-1 bg-[#58cc02] text-white font-extrabold py-2 rounded-xl text-sm uppercase tracking-wide">Salvar</button><button onclick="closeAvatarBuilder()" class="bg-gray-300 text-gray-700 font-extrabold px-4 py-2 rounded-xl text-sm">Voltar</button></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -159,7 +171,7 @@
                 </div>
             </div>
 
-            <!-- TAB: SOCIAL (AMIGOS E SOLICITAÇÕES) -->
+            <!-- TAB: SOCIAL (SISTEMA DE AMIGOS CORRIGIDO) -->
             <div id="tab-social" class="tab-content hidden space-y-6">
                 <div class="duo-card rounded-2xl p-4 bg-white">
                     <h3 class="font-extrabold text-base mb-2">🤝 Adicionar Novo Amigo</h3>
@@ -183,6 +195,54 @@
                 <div class="border-t-2 border-[#e5e5e5] pt-4">
                     <h3 class="font-extrabold text-lg mb-3">💬 Feed de Conquistas da Galera</h3>
                     <div id="social-feed-container" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- TAB: LOJA (MONETIZAÇÃO EXPERIMENTAL SUPER & META) -->
+            <div id="tab-shop" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-center mb-2">💎 Escolha o seu Plano Meta</h2>
+                <p class="text-center text-sm font-bold text-gray-400 mb-6">Acesse recursos incríveis para acelerar seu aprendizado.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Card Super -->
+                    <div class="duo-card rounded-3xl p-6 bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex flex-col justify-between">
+                        <div>
+                            <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">Recomendado</span>
+                            <h3 class="text-2xl font-black mt-2">Duolingo Super</h3>
+                            <p class="text-xs opacity-80 mt-1">Estude sem interrupções</p>
+                            <ul class="text-xs font-bold space-y-2 mt-4">
+                                <li>✨ Visual Premium Exclusivo</li>
+                                <li>❤️ Vidas Infinitas para praticar</li>
+                                <li>🚫 Sem anúncios irritantes</li>
+                            </ul>
+                        </div>
+                        <div class="mt-6">
+                            <p class="text-xl font-black mb-2">R$ 19,90/mês</p>
+                            <button onclick="subscribePlan('super')" class="w-full bg-white text-purple-700 font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-md hover:bg-gray-50">Testar Assinatura Super</button>
+                        </div>
+                    </div>
+
+                    <!-- Card Meta -->
+                    <div class="duo-card rounded-3xl p-6 bg-gradient-to-br from-amber-500 to-yellow-600 text-white flex flex-col justify-between border-amber-300">
+                        <div>
+                            <span class="bg-black/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">Alta Performance</span>
+                            <h3 class="text-2xl font-black mt-2">Duolingo Meta</h3>
+                            <p class="text-xs opacity-80 mt-1">Turbine o seu ganho de XP</p>
+                            <ul class="text-xs font-bold space-y-2 mt-4">
+                                <li>⚡ Multiplicador de 2x XP definitivo</li>
+                                <li>👑 Aura Dourada Brilhante no Ranking</li>
+                                <li>🔓 Acesso antecipado a fases lendárias</li>
+                            </ul>
+                        </div>
+                        <div class="mt-6">
+                            <p class="text-xl font-black mb-2">R$ 39,90/mês</p>
+                            <button onclick="subscribePlan('meta')" class="w-full bg-amber-900 text-white font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-md hover:bg-amber-950">Testar Assinatura Meta</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center pt-4">
+                    <button onclick="subscribePlan('free')" class="text-xs font-bold text-gray-400 underline">Voltar para o Plano Gratuito</button>
                 </div>
             </div>
         </main>
@@ -214,166 +274,120 @@
 
         const defaultAvatar = { skin: "#ffdbac", hair: "short", hairColor: "#4a3728", clothing: "#58cc02", accessory: "none", bg: "#ddf4ff" };
 
-        // BANCO DE DADOS COMPLETO COM TODOS OS IDIOMAS E VARIADAS MATÉRIAS (10 QUESTÕES POR SKILL)
         const lessonsDB = {
             en: {
                 saudaçoes: [
                     { q: 'Hello', type: 'escolha', options: ['Olá', 'Carro', 'Noite'], correct: 0 },
                     { q: 'Good morning significa "Bom dia".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
                     { q: 'Goodbye', type: 'escolha', options: ['Por favor', 'Obrigado', 'Adeus'], correct: 2 },
-                    { q: 'Complete a lacuna: Thank __ (Obrigado)', type: 'lacuna', options: ['you', 'me', 'hi'], correct: 0 },
-                    { q: 'Please', type: 'escolha', options: ['Maçã', 'Por favor', 'Sim'], correct: 1 },
-                    { q: 'Good night significa "Boa tarde".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: 'Welcome', type: 'escolha', options: ['Desculpe', 'Bem-vindo', 'Entrada'], correct: 1 },
-                    { q: 'Complete: How __ you? (Como você está?)', type: 'lacuna', options: ['is', 'are', 'am'], correct: 1 },
-                    { q: 'See you later', type: 'escolha', options: ['Até logo', 'Bom dia', 'Até amanhã'], correct: 0 },
-                    { q: 'Nice to meet you', type: 'escolha', options: ['Prazer em conhecer você', 'Obrigado por tudo', 'Até breve'], correct: 0 }
+                    { q: 'Complete a lacuna: Thank __', type: 'lacuna', options: ['you', 'me', 'hi'], correct: 0 },
+                    { q: 'Please', type: 'escolha', options: ['Maçã', 'Por favor', 'Sim'], correct: 1 }
                 ],
                 familia: [
                     { q: 'Mother', type: 'escolha', options: ['Pai', 'Mãe', 'Irmão'], correct: 1 },
-                    { q: 'Father significa "Tio".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: 'Brother', type: 'escolha', options: ['Irmão', 'Primo', 'Avô'], correct: 0 },
-                    { q: 'Complete a lacuna: My sister is __ (Minha irmã é legal)', type: 'lacuna', options: ['nice', 'car', 'blue'], correct: 0 },
-                    { q: 'Grandfather', type: 'escolha', options: ['Avó', 'Tio', 'Avô'], correct: 2 },
-                    { q: 'Son significa "Filho".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'Daughter', type: 'escolha', options: ['Filha', 'Sobrinha', 'Tia'], correct: 0 },
-                    { q: 'Complete: He is my __ (Ele é meu pai)', type: 'lacuna', options: ['father', 'mother', 'sister'], correct: 0 },
-                    { q: 'Family', type: 'escolha', options: ['Amigos', 'Família', 'Vizinhos'], correct: 1 },
-                    { q: 'Uncle significa "Primo".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 }
+                    { q: 'Father significa "Tio".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 }
                 ]
             },
             es: {
                 saludos: [
                     { q: 'Hola', type: 'escolha', options: ['Tchau', 'Olá', 'Obrigado'], correct: 1 },
                     { q: 'Buenos días significa "Boa noite".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: 'Gracias', type: 'escolha', options: ['Por favor', 'De nada', 'Obrigado'], correct: 2 },
-                    { q: 'Complete: ¿Cómo __ estás? (Como você está?)', type: 'lacuna', options: ['tú', 'yo', 'él'], correct: 0 },
-                    { q: 'Adiós', type: 'escolha', options: ['Bem-vindo', 'Adeus', 'Até logo'], correct: 1 },
-                    { q: 'Por favor significa o mesmo em português e espanhol.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'Lo siento', type: 'escolha', options: ['Desculpe', 'Prazer', 'Com licença'], correct: 0 },
-                    { q: 'Complete: Buenas __ (Boa tarde)', type: 'lacuna', options: ['tardes', 'noches', 'días'], correct: 0 },
-                    { q: '¿Qué tal?', type: 'escolha', options: ['Tudo bem? / Que tal?', 'Até mais', 'Onde fica?'], correct: 0 },
-                    { q: 'Mucho gusto significa "Muito obrigado".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 }
+                    { q: 'Gracias', type: 'escolha', options: ['Por favor', 'De nada', 'Obrigado'], correct: 2 }
                 ],
                 comida_es: [
-                    { q: 'Manzana', type: 'escolha', options: ['Banana', 'Maçã', 'Uva'], correct: 1 },
-                    { q: 'Pan significa "Pão".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
+                    { q: 'Manzana', type: 'escolha', options: ['Banana', 'Maçã', 'Uva'], correct: 1 }
                 ]
             },
             ja: {
                 hiragana: [
-                    { q: 'O caractere あ representa o som de:', type: 'escolha', options: ['A', 'I', 'U'], correct: 0 },
-                    { q: 'O caractere い representa o som de "O".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: 'O caractere う representa o som de:', type: 'escolha', options: ['E', 'U', 'O'], correct: 1 },
-                    { q: 'Complete a sequência do alfabeto: あ, い, __, え, お', type: 'lacuna', options: ['う (U)', 'か (Ka)', 'ん (N)'], correct: 0 },
-                    { q: 'O caractere え representa o som de:', type: 'escolha', options: ['A', 'E', 'I'], correct: 1 },
-                    { q: 'O som "O" é escrito como お em hiragana.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'O caractere か representa o som de:', type: 'escolha', options: ['Sa', 'Ka', 'Ta'], correct: 1 },
-                    { q: 'Complete o som "Ki": __', type: 'lacuna', options: ['き', 'く', 'け'], correct: 0 },
-                    { q: 'O caractere す representa o som de:', type: 'escolha', options: ['Su', 'Se', 'So'], correct: 0 },
-                    { q: 'O hiragana é o principal alfabeto fonético do japonês.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
+                    { q: 'あ', type: 'escolha', options: ['A', 'I', 'U'], correct: 0 },
+                    { q: 'い', type: 'escolha', options: ['O', 'I', 'E'], correct: 1 },
+                    { q: 'う', type: 'escolha', options: ['E', 'U', 'O'], correct: 1 }
                 ]
             },
             ko: {
                 hangul: [
-                    { q: '안녕하세요 (Annyeonghaseyo)', type: 'escolha', options: ['Obrigado', 'Olá', 'Tchau'], correct: 1 },
-                    { q: '고맙습니다 (Gomapsumnida)', type: 'escolha', options: ['Obrigado', 'Desculpe', 'Por favor'], correct: 0 },
-                    { q: '"Annyeong" é uma saudação informal.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'Complete: __ (Água)', type: 'lacuna', options: ['물 (Mul)', '밥 (Bap)', '우유 (Uyu)'], correct: 0 },
-                    { q: '우유 (Uyu)', type: 'escolha', options: ['Leite', 'Café', 'Suco'], correct: 0 },
-                    { q: '밥 (Bap) significa Pão.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: '김치 (Kimchi)', type: 'escolha', options: ['Frango', 'Kimchi (Prato Típico)', 'Arroz'], correct: 1 },
-                    { q: 'Complete: 네 (__)', type: 'lacuna', options: ['Sim', 'Não', 'Talvez'], correct: 0 },
-                    { q: '아니요 (Aniyo)', type: 'escolha', options: ['Por favor', 'Não', 'Obrigado'], correct: 1 },
-                    { q: '사랑해 (Saranghae) significa "Eu te amo".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
+                    { q: '안녕하세요', type: 'escolha', options: ['Obrigado', 'Olá', 'Tchau'], correct: 1 },
+                    { q: '우유', type: 'escolha', options: ['Leite', 'Café', 'Suco'], correct: 0 }
                 ]
             },
             matematica: {
                 aritmetica: [
                     { q: 'Quanto é 7 + 5?', type: 'escolha', options: ['11', '12', '13'], correct: 1 },
-                    { q: 'Quanto é 9 x 6?', type: 'escolha', options: ['54', '48', '56'], correct: 0 },
-                    { q: 'O resultado de 15 - 8 é 7.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'Complete a sequência: 2, 4, 6, 8, __', type: 'lacuna', options: ['9', '10', '12'], correct: 1 },
-                    { q: 'Quanto é 45 dividido por 5?', type: 'escolha', options: ['8', '9', '7'], correct: 1 },
-                    { q: 'Todo número multiplicado por zero é igual a ele mesmo.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: 'Quanto é 12 + 19?', type: 'escolha', options: ['31', '32', '29'], correct: 0 },
-                    { q: 'Complete: 100 - __ = 25', type: 'lacuna', options: ['50', '75', '65'], correct: 1 },
-                    { q: 'Quanto é 8 x 7?', type: 'escolha', options: ['54', '56', '62'], correct: 1 },
-                    { q: 'A metade de 50 é 25.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
-                ],
-                algebra: [
-                    { q: 'Se x + 5 = 12, quanto vale x?', type: 'escolha', options: ['6', '7', '8'], correct: 1 },
-                    { q: 'Se 2x = 20, então x = 10.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
+                    { q: 'Quanto é 9 x 6?', type: 'escolha', options: ['54', '48', '56'], correct: 0 }
                 ]
             },
             xadrez: {
                 regras: [
                     { q: 'Qual peça se move em formato de "L"?', type: 'escolha', options: ['Bispo', 'Cavalo', 'Torre'], correct: 1 },
-                    { q: 'O Bispo só pode se mover pelas diagonais.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'Quantas casas o peão pode andar no seu primeiro movimento do jogo?', type: 'escolha', options: ['Apenas 1', '1 ou 2 casas', 'Quantas quiser'], correct: 1 },
-                    { q: 'Complete: O objetivo principal do jogo é dar xeque-__, capturando o Rei.', type: 'lacuna', options: ['mate', 'pátio', 'vazio'], correct: 0 },
-                    { q: 'Qual peça pode saltar sobre outras peças no tabuleiro?', type: 'escolha', options: ['Rainha', 'Torre', 'Cavalo'], correct: 2 },
-                    { q: 'O Roque é um movimento especial que envolve o Rei e a Rainha.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: 'Qual é a peça mais poderosa e com maior liberdade de movimentos?', type: 'escolha', options: ['Rei', 'Dama / Rainha', 'Torre'], correct: 1 },
-                    { q: 'Complete: O peão captura peças adversárias andando na __.', type: 'lacuna', options: ['diagonal', 'vertical', 'horizontal'], correct: 0 },
-                    { q: 'A Torre se move em linhas retas (verticais e horizontais).', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'Quantos peões cada jogador possui no início da partida?', type: 'escolha', options: ['6', '8', '10'], correct: 1 }
-                ],
-                estrategia: [
-                    { q: 'O que significa um "Gambito" no xadrez?', type: 'escolha', options: ['Sacrificar material para ganhar vantagem', 'Pedir empate', 'Mover duas peças ao mesmo tempo'], correct: 0 },
-                    { q: 'Controlar as 4 casas centrais do tabuleiro é fundamental na abertura.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
+                    { q: 'O Bispo só pode se mover pelas diagonais.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
                 ]
             }
         };
 
-        // META DE EXPANSÃO DA ÁRVORE (REQUISITO DE XP PARA LIBERAR NOVAS FASES)
         const treeMeta = {
             en: [
                 { id: 'saudaçoes', name: 'Saudações', icon: '💬', color: '#58cc02', xpRequired: 0 },
-                { id: 'familia', name: 'Família', icon: '👨‍👩‍👧', color: '#1cb0f6', xpRequired: 20 },
-                { id: 'saudaçoes', name: 'Viagem (Em Breve)', icon: '✈️', color: '#ff4b4b', xpRequired: 50 },
-                { id: 'saudaçoes', name: 'Trabalho (Em Breve)', icon: '💼', color: '#ffc800', xpRequired: 80 }
+                { id: 'familia', name: 'Família', icon: '👨‍👩‍👧', color: '#1cb0f6', xpRequired: 20 }
             ],
             es: [
                 { id: 'saludos', name: 'Saludos Básicos', icon: '🇪🇸', color: '#ffc800', xpRequired: 0 },
-                { id: 'comida_es', name: 'Restaurante', icon: '🍏', color: '#58cc02', xpRequired: 20 },
-                { id: 'saludos', name: 'Conversación (Em Breve)', icon: '🗣️', color: '#1cb0f6', xpRequired: 60 }
+                { id: 'comida_es', name: 'Restaurante', icon: '🍏', color: '#58cc02', xpRequired: 20 }
             ],
             ja: [
-                { id: 'hiragana', name: 'Alfabeto Hiragana', icon: '🏮', color: '#ff4b4b', xpRequired: 0 },
-                { id: 'hiragana', name: 'Katakana (Em Breve)', icon: '🍣', color: '#58cc02', xpRequired: 40 }
+                { id: 'hiragana', name: 'Alfabeto Hiragana', icon: '🏮', color: '#ff4b4b', xpRequired: 0 }
             ],
             ko: [
-                { id: 'hangul', name: 'Alfabeto Hangul', icon: '🇰🇷', color: '#1cb0f6', xpRequired: 0 },
-                { id: 'hangul', name: 'Expressões (Em Breve)', icon: '🎵', color: '#ffc800', xpRequired: 30 }
+                { id: 'hangul', name: 'Alfabeto Hangul', icon: '🇰🇷', color: '#1cb0f6', xpRequired: 0 }
             ],
             matematica: [
-                { id: 'aritmetica', name: 'Aritmética', icon: '🔢', color: '#58cc02', xpRequired: 0 },
-                { id: 'algebra', name: 'Álgebra Básica', icon: '📐', color: '#ffc800', xpRequired: 20 },
-                { id: 'aritmetica', name: 'Geometria (Em Breve)', icon: '🔵', color: '#1cb0f6', xpRequired: 50 }
+                { id: 'aritmetica', name: 'Aritmética', icon: '🔢', color: '#58cc02', xpRequired: 0 }
             ],
             xadrez: [
-                { id: 'regras', name: 'Regras Básicas', icon: '👑', color: '#4a3728', xpRequired: 0 },
-                { id: 'estrategia', name: 'Táticas e Aberturas', icon: '⚔️', color: 'orange', xpRequired: 20 },
-                { id: 'regras', name: 'Finais de Jogo (Em Breve)', icon: '🏁', color: '#777', xpRequired: 60 }
+                { id: 'regras', name: 'Regras Básicas', icon: '👑', color: '#4a3728', xpRequired: 0 }
             ]
         };
 
-        function sanitizeEmail(email) { return email.toLowerCase().replace(/\./g, ','); }
+        function sanitizeEmail(email) { return email.toLowerCase().trim().replace(/\./g, ','); }
 
-        function generateAvatarSVG(config) {
+        // --- SISTEMA NATIVO DE VOZ (TEXT-TO-SPEECH WITH ACCENTS) ---
+        function speak(text, courseKey) {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel(); // Para vozes encavaladas
+
+            const langMap = { en: 'en-US', es: 'es-MX', ja: 'ja-JP', ko: 'ko-KR', matematica: 'pt-BR', xadrez: 'pt-BR' };
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = langMap[courseKey] || 'pt-BR';
+            
+            // Localiza vozes nativas instaladas no SO do usuário
+            const voices = window.speechSynthesis.getVoices();
+            const matchingVoice = voices.find(v => v.lang.startsWith(utterance.lang));
+            if (matchingVoice) utterance.voice = matchingVoice;
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function triggerVoiceRepetition() {
+            if (currentLessonData[currentStep]) {
+                speak(currentLessonData[currentStep].q, userData.currentCourse || 'en');
+            }
+        }
+
+        function generateAvatarSVG(config, subscriptionType = 'free') {
             const cfg = config || defaultAvatar;
             let hairSVG = '';
             if (cfg.hair === 'short') hairSVG = `<path d="M30 40 Q50 10 70 40 Q50 30 30 40" fill="${cfg.hairColor}"/>`;
             else if (cfg.hair === 'long') hairSVG = `<path d="M25 40 Q50 5 75 40 Q85 80 75 80 Q50 35 25 80 Q15 80 25 40" fill="${cfg.hairColor}"/>`;
-            else if (cfg.hair === 'undercut') hairSVG = `<path d="M33 35 L50 15 L67 35 Z" fill="${cfg.hairColor}"/><circle cx="50" cy="22" r="6" fill="${cfg.hairColor}"/>`;
+            else if (cfg.hair === 'undercut') hairSVG = `<path d="M33 35 L50 15 L67 35 Z" fill="${cfg.hairColor}"/>`;
 
             let accSVG = '';
             if (cfg.accessory === 'glasses') accSVG = `<rect x="33" y="44" width="13" height="9" rx="2" fill="none" stroke="#222" stroke-width="2.5"/><rect x="54" y="44" width="13" height="9" rx="2" fill="none" stroke="#222" stroke-width="2.5"/><line x1="46" y1="48" x2="54" y2="48" stroke="#222" stroke-width="2.5"/>`;
-            else if (cfg.accessory === 'hat') accSVG = `<path d="M28 34 Q50 15 72 34 Z" fill="#ff4b4b"/><path d="M25 34 L75 30 L70 35 L28 35 Z" fill="#cc3333"/>`;
+            else if (cfg.accessory === 'hat') accSVG = `<path d="M28 34 Q50 15 72 34 Z" fill="#ff4b4b"/>`;
+
+            const auraClass = subscriptionType === 'meta' ? 'class="meta-aura"' : subscriptionType === 'super' ? 'style="filter: drop-shadow(0 0 6px #a855f7)"' : '';
 
             return `
-                <svg viewBox="0 0 100 100" class="w-full h-full">
+                <svg viewBox="0 0 100 100" ${auraClass} class="w-full h-full">
                     <circle cx="50" cy="50" r="48" fill="${cfg.bg}"/>
                     <path d="M20 95 Q50 65 80 95 Z" fill="${cfg.clothing}"/>
                     <circle cx="50" cy="50" r="23" fill="${cfg.skin}"/>
@@ -403,7 +417,7 @@
             }
         }
 
-        // --- AUTH & CONFIG ---
+        // --- AUTH ---
         document.getElementById('btn-login-email').addEventListener('click', () => {
             auth.signInWithEmailAndPassword(document.getElementById('email-input').value, document.getElementById('password-input').value).catch(err => alert(err.message));
         });
@@ -412,7 +426,7 @@
             const email = document.getElementById('email-input').value;
             auth.createUserWithEmailAndPassword(email, document.getElementById('password-input').value).then((cred) => {
                 const uid = cred.user.uid;
-                db.ref('users/' + uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en" });
+                db.ref('users/' + uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en", subscription: "free" });
                 db.ref('emails/' + sanitizeEmail(email)).set(uid);
             }).catch(err => alert(err.message));
         });
@@ -422,9 +436,9 @@
                 const uid = cred.user.uid;
                 db.ref('users/' + uid).once('value').then((snapshot) => {
                     if (!snapshot.exists()) {
-                        db.ref('users/' + uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en" });
-                        db.ref('emails/' + sanitizeEmail(cred.user.email)).set(uid);
+                        db.ref('users/' + uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en", subscription: "free" });
                     }
+                    db.ref('emails/' + sanitizeEmail(cred.user.email)).set(uid);
                 });
             }).catch(err => alert(err.message));
         });
@@ -449,7 +463,20 @@
                 document.getElementById('profile-level').innerText = Math.floor((userData.xp || 0) / 100) + 1;
                 document.getElementById('course-selector').value = userData.currentCourse || "en";
                 
-                const currentAvatarHTML = generateAvatarSVG(userData.avatar);
+                // Configuração da assinatura na UI
+                const pBadge = document.getElementById('premium-badge');
+                const sub = userData.subscription || 'free';
+                if (sub === 'meta') {
+                    pBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-white animate-pulse";
+                    pBadge.innerText = "👑 Meta User";
+                    pBadge.classList.remove('hidden');
+                } else if (sub === 'super') {
+                    pBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-purple-600 text-white";
+                    pBadge.innerText = "✨ Super";
+                    pBadge.classList.remove('hidden');
+                } else { pBadge.classList.add('hidden'); }
+
+                const currentAvatarHTML = generateAvatarSVG(userData.avatar, sub);
                 document.getElementById('profile-avatar-render').innerHTML = currentAvatarHTML;
                 document.getElementById('nav-avatar-container').innerHTML = currentAvatarHTML;
 
@@ -462,7 +489,13 @@
             });
         }
 
-        // --- SISTEMA ATUALIZADO DE TRILHA INTELECTUAL POR XP ---
+        // --- ASSINATURAS SIMULADAS ---
+        window.subscribePlan = function(planType) {
+            db.ref('users/' + currentUser.uid).update({ subscription: planType }).then(() => {
+                alert(`Plano alterado para ${planType.toUpperCase()} com sucesso!`);
+            });
+        };
+
         function renderTree(courseKey) {
             const container = document.getElementById('dynamic-skills-tree');
             container.innerHTML = '';
@@ -472,15 +505,9 @@
             skills.forEach((sk, idx) => {
                 const alignClass = idx % 2 === 0 ? '' : 'translate-x-12';
                 const isLocked = userXp < sk.xpRequired;
-                
-                let btnHTML = '';
-                if (isLocked) {
-                    // Fase bloqueada com cadeado
-                    btnHTML = `<button class="w-16 h-16 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xl font-bold cursor-not-allowed border-2 border-gray-400">🔒</button>`;
-                } else {
-                    // Fase aberta jogável
-                    btnHTML = `<button onclick="startLesson('${sk.id}')" style="background-color: ${sk.color}" class="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-lg transform hover:scale-105 transition-all">${sk.icon}</button>`;
-                }
+                let btnHTML = isLocked 
+                    ? `<button class="w-16 h-16 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xl font-bold cursor-not-allowed border-2 border-gray-400">🔒</button>`
+                    : `<button onclick="startLesson('${sk.id}')" style="background-color: ${sk.color}" class="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-lg transform hover:scale-105 transition-all">${sk.icon}</button>`;
 
                 container.innerHTML += `
                     <div class="text-center ${alignClass} flex flex-col items-center">
@@ -496,11 +523,11 @@
             db.ref('users/' + currentUser.uid).update({ currentCourse: e.target.value });
         });
 
-        // --- ENGINE DE LIÇÕES ---
+        // --- LIÇÕES & SISTEMA DE ÁUDIO AUTOMÁTICO ---
         window.startLesson = function(skill) {
             const course = userData.currentCourse || 'en';
             currentLessonData = lessonsDB[course][skill]; 
-            if (!currentLessonData || currentLessonData.length === 0) { alert("Esta fase está sendo construída!"); return; }
+            if (!currentLessonData || currentLessonData.length === 0) { alert("Esta fase está em desenvolvimento!"); return; }
             currentStep = 0; isAnswerChecked = false;
             document.getElementById('lesson-modal').classList.remove('hidden');
             renderStep();
@@ -516,20 +543,24 @@
             document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
 
             if (currentStep >= currentLessonData.length) {
+                // Fim da lição com cálculo de XP baseado no plano Meta ($2\times$ XP)
+                const isMeta = userData.subscription === 'meta';
+                const xpGanho = isMeta ? 20 : 10;
+
                 document.getElementById('lesson-progress').style.width = '100%';
                 document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center animate-bounce";
-                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Perfeito!</h3><p>Fase batida! Você ganhou +10 XP.</p>`;
+                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Excelente!</h3><p>Fase batida! Você ganhou +${xpGanho} XP ${isMeta ? '(Bônus 2x Meta Ativo!)' : ''}.</p>`;
                 document.getElementById('feedback-panel').classList.remove('hidden');
                 playSound('correct');
 
-                document.getElementById('lesson-submit').innerText = "Concluir e Computar";
+                document.getElementById('lesson-submit').innerText = "Concluir";
                 document.getElementById('lesson-submit').onclick = function() {
                     const hoje = new Date().toDateString();
                     let novaOfensiva = userData.streak || 0;
                     if (userData.lastLessonDate !== hoje) { novaOfensiva++; }
 
-                    db.ref('users/' + currentUser.uid).update({ xp: (userData.xp || 0) + 10, streak: novaOfensiva, lastLessonDate: hoje });
-                    db.ref('public_feed').push({ uid: currentUser.uid, userName: userData.displayName || "Estudante", avatar: userData.avatar || defaultAvatar, msg: `ganhou mais +10 XP e está destravando novas lições! 🚀`, timestamp: Date.now(), likes: 0 });
+                    db.ref('users/' + currentUser.uid).update({ xp: (userData.xp || 0) + xpGanho, streak: novaOfensiva, lastLessonDate: hoje });
+                    db.ref('public_feed').push({ uid: currentUser.uid, userName: userData.displayName || "Estudante", avatar: userData.avatar || defaultAvatar, msg: `concluiu uma lição e acumulou +${xpGanho} XP! 🚀`, timestamp: Date.now(), likes: 0 });
 
                     closeLesson();
                     document.getElementById('lesson-submit').onclick = checkAnswer;
@@ -540,6 +571,9 @@
             const stepData = currentLessonData[currentStep];
             document.getElementById('lesson-question').innerText = stepData.q;
             
+            // Ativa leitura da palavra/saudação automaticamente ao iniciar a questão
+            speak(stepData.q, userData.currentCourse || 'en');
+
             const badge = document.getElementById('activity-type-badge');
             if (stepData.type === 'v_f') { badge.innerText = "🤔 Verdadeiro ou Falso"; badge.className = "inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-extrabold uppercase"; }
             else if (stepData.type === 'lacuna') { badge.innerText = "🧩 Complete a Lacuna"; badge.className = "inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-extrabold uppercase"; }
@@ -548,13 +582,15 @@
             const optionsContainer = document.getElementById('lesson-options');
             optionsContainer.innerHTML = '';
             stepData.options.forEach((opt, idx) => {
-                optionsContainer.innerHTML += `<button onclick="selectOption(${idx})" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] bg-white" data-index="${idx}">${opt}</button>`;
+                optionsContainer.innerHTML += `<button onclick="selectOption(${idx}, '${opt}')" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] bg-white" data-index="${idx}">${opt}</button>`;
             });
             selectedOptionIndex = null;
         }
 
-        window.selectOption = function(idx) {
+        window.selectOption = function(idx, wordText) {
             if (isAnswerChecked) return;
+            // Pronuncia a opção clicada
+            speak(wordText, userData.currentCourse || 'en');
             document.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]'); b.classList.add('border-[#e5e5e5]'); });
             document.querySelector(`[data-index="${idx}"]`).classList.add('border-[#1cb0f6]', 'bg-[#ddf4ff]');
             selectedOptionIndex = idx;
@@ -582,29 +618,29 @@
             panel.classList.remove('hidden');
         };
 
-        // --- BUSCA DIRETA E SEGURA DE AMIGOS ---
+        // --- SISTEMA REESTRUTURADO E SEGURO DE PARCERIA E AMIZADES ---
         window.sendFriendRequest = function() {
-            const targetEmail = document.getElementById('friend-search-input').value.trim();
+            const targetEmail = document.getElementById('friend-search-input').value.toLowerCase().trim();
             const msgEl = document.getElementById('social-status-msg');
             if (!targetEmail) return;
 
-            msgEl.innerText = "Buscando usuário...";
-            const lookUpKey = sanitizeEmail(targetEmail);
+            msgEl.innerText = "Procurando...";
+            const lookUpKey = targetEmail.replace(/\./g, ',');
 
             db.ref('emails/' + lookUpKey).once('value', (snap) => {
                 if (snap.exists()) {
                     const targetUid = snap.val();
-                    if (targetUid === currentUser.uid) { msgEl.innerText = "Você não pode se convidar!"; return; }
+                    if (targetUid === currentUser.uid) { msgEl.innerText = "Você não pode enviar convite para você mesmo."; return; }
 
                     db.ref(`users/${targetUid}/friend_requests/${currentUser.uid}`).set({
-                        fromName: userData.displayName || "Um usuário",
+                        fromName: userData.displayName || "Usuário",
                         fromEmail: userData.email
                     }).then(() => {
-                        msgEl.innerText = "Boa! Convite enviado com sucesso. Avise seu irmão!";
+                        msgEl.innerText = "Pronto! Convite de amizade enviado.";
                         document.getElementById('friend-search-input').value = "";
                     });
-                } else { msgEl.innerText = "E-mail não encontrado. Verifique a digitação."; }
-            }).catch(() => { msgEl.innerText = "Erro na busca."; });
+                } else { msgEl.innerText = "Nenhum usuário localizado com esse e-mail."; }
+            }).catch(() => { msgEl.innerText = "Erro ao conectar."; });
         };
 
         function loadIncomingRequests() {
@@ -622,11 +658,11 @@
                     Object.keys(requests).forEach(senderUid => {
                         const req = requests[senderUid];
                         listContainer.innerHTML += `
-                            <div class="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-amber-200">
-                                <div class="text-xs text-amber-900"><b class="text-sm">${req.fromName}</b> enviou convite.</div>
+                            <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-amber-200">
+                                <div class="text-xs text-amber-900"><b>${req.fromName}</b> quer ser seu amigo.</div>
                                 <div class="flex gap-1">
-                                    <button onclick="acceptFriend('${senderUid}')" class="bg-[#58cc02] text-white text-xs px-2.5 py-1 font-bold rounded-lg uppercase">Aceitar</button>
-                                    <button onclick="rejectFriend('${senderUid}')" class="bg-gray-200 text-gray-600 text-xs px-2.5 py-1 font-bold rounded-lg">Recusar</button>
+                                    <button onclick="acceptFriend('${senderUid}')" class="bg-[#58cc02] text-white text-xs px-3 py-1 font-bold rounded-lg">Aceitar</button>
+                                    <button onclick="rejectFriend('${senderUid}')" class="bg-gray-200 text-gray-600 text-xs px-3 py-1 font-bold rounded-lg">Recusar</button>
                                 </div>
                             </div>
                         `;
@@ -645,14 +681,14 @@
 
         function loadSocialRanking() {
             let rankingData = [];
-            rankingData.push({ uid: currentUser.uid, avatar: userData.avatar, name: (userData.displayName || "Você"), xp: (userData.xp || 0), isMe: true });
+            rankingData.push({ uid: currentUser.uid, avatar: userData.avatar, name: (userData.displayName || "Você"), xp: (userData.xp || 0), isMe: true, subscription: userData.subscription || 'free' });
 
             if (userData.friends) {
                 const promises = Object.keys(userData.friends).map(fUid => {
                     return db.ref('users/' + fUid).once('value').then(snap => {
                         if (snap.exists()) {
                             const f = snap.val();
-                            rankingData.push({ uid: fUid, avatar: f.avatar, name: f.displayName || "Estudante", xp: f.xp || 0, isMe: false });
+                            rankingData.push({ uid: fUid, avatar: f.avatar, name: f.displayName || "Estudante", xp: f.xp || 0, isMe: false, subscription: f.subscription || 'free' });
                         }
                     });
                 });
@@ -669,7 +705,7 @@
                     <div class="duo-card rounded-2xl p-4 flex items-center justify-between ${u.isMe ? 'bg-blue-50 border-blue-300' : 'bg-white'}">
                         <div class="flex items-center gap-4">
                             <span class="font-extrabold w-6 text-center">${i + 1}</span>
-                            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">${generateAvatarSVG(u.avatar)}</div>
+                            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">${generateAvatarSVG(u.avatar, u.subscription)}</div>
                             <h4 class="font-extrabold text-sm">${u.name} ${u.isMe ? '(Você)' : ''}</h4>
                         </div>
                         <div class="font-extrabold text-sm text-orange-500">⚡ ${u.xp} XP</div>
@@ -688,38 +724,17 @@
                 const feeds = snap.val();
                 Object.keys(feeds).reverse().forEach(feedId => {
                     const f = feeds[feedId];
-                    let commentsHTML = '';
-                    if (f.comments) {
-                        Object.keys(f.comments).forEach(cId => {
-                            const c = f.comments[cId];
-                            commentsHTML += `<div class="bg-gray-50 p-2 rounded-xl text-xs mt-1"><b>${c.author}:</b> ${c.text}</div>`;
-                        });
-                    }
-
                     container.innerHTML += `
-                        <div class="duo-card rounded-2xl p-4 bg-white border border-gray-200 space-y-3">
+                        <div class="duo-card rounded-2xl p-4 bg-white border border-gray-200 space-y-2">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200">${generateAvatarSVG(f.avatar)}</div>
+                                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200">${generateAvatarSVG(f.avatar, 'free')}</div>
                                 <div class="text-xs text-gray-600"><b class="text-sm text-gray-800">${f.userName}</b> ${f.msg}</div>
                             </div>
-                            <div class="flex gap-2 items-center text-xs">
-                                <button onclick="likeFeedItem('${feedId}')" class="bg-red-50 text-red-500 px-3 py-1.5 rounded-xl font-bold">❤️ (${f.likes || 0})</button>
-                                <input id="reply-input-${feedId}" type="text" placeholder="Parabenizar..." class="flex-1 bg-gray-100 rounded-xl px-3 py-1.5 focus:outline-none focus:bg-white border text-xs font-bold">
-                                <button onclick="commentFeedItem('${feedId}')" class="bg-[#1cb0f6] text-white px-3 py-1.5 rounded-xl font-bold">Enviar</button>
-                            </div>
-                            <div class="space-y-1 pl-2 border-l-2 border-gray-200">${commentsHTML}</div>
                         </div>
                     `;
                 });
             });
         }
-
-        window.likeFeedItem = function(feedId) { db.ref(`public_feed/${feedId}/likes`).transaction(c => (c || 0) + 1); };
-        window.commentFeedItem = function(feedId) {
-            const input = document.getElementById(`reply-input-${feedId}`);
-            if (!input.value.trim()) return;
-            db.ref(`public_feed/${feedId}/comments`).push({ author: userData.displayName || "Estudante", text: input.value.trim() }).then(() => input.value = '');
-        };
 
         window.toggleEditProfile = function() {
             const input = document.getElementById('profile-name-input');
@@ -732,7 +747,7 @@
         window.closeAvatarBuilder = function() { document.getElementById('avatar-builder-panel').classList.add('hidden'); };
         window.previewAvatar = function() {
             const p = { skin: document.getElementById('av-skin').value, hair: document.getElementById('av-hair').value, hairColor: document.getElementById('av-hair-color').value, clothing: document.getElementById('av-clothing').value, accessory: document.getElementById('av-accessory').value, bg: document.getElementById('av-bg').value };
-            document.getElementById('profile-avatar-render').innerHTML = generateAvatarSVG(p);
+            document.getElementById('profile-avatar-render').innerHTML = generateAvatarSVG(p, userData.subscription);
         };
         window.saveAvatar = function() {
             const p = { skin: document.getElementById('av-skin').value, hair: document.getElementById('av-hair').value, hairColor: document.getElementById('av-hair-color').value, clothing: document.getElementById('av-clothing').value, accessory: document.getElementById('av-accessory').value, bg: document.getElementById('av-bg').value };
