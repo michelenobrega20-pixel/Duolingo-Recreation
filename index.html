@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duolingo Meta - Edição Infinita</title>
+    <title>Duolingo Meta - Edição Premium & Admin</title>
     
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,10 +22,11 @@
         .duo-btn-green:active { border-bottom-width: 0px; margin-top: 4px; }
         .duo-btn-blue { background-color: #1cb0f6; border-bottom: 4px solid #1899d6; }
         .duo-btn-blue:active { border-bottom-width: 0px; margin-top: 4px; }
+        .duo-btn-red { background-color: #ff4b4b; border-bottom: 4px solid #ea2b2b; }
+        .duo-btn-red:active { border-bottom-width: 0px; margin-top: 4px; }
         .duo-card { border: 2px solid #e5e5e5; border-bottom-width: 4px; }
         .duo-card:active { border-bottom-width: 2px; }
         
-        /* Efeitos Visuais de Assinatura */
         .meta-aura { filter: drop-shadow(0 0 8px #eab308); animation: gold-glow 2s infinite alternate; }
         @keyframes gold-glow {
             0% { filter: drop-shadow(0 0 4px #eab308); }
@@ -39,6 +40,20 @@
     </style>
 </head>
 <body class="bg-white text-[#3c3c3c] antialiased">
+
+    <!-- TELA GLOBAL DE MANUTENÇÃO (REALTIME OVERLAY) -->
+    <div id="maintenance-screen" class="hidden fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center text-center px-4">
+        <div class="text-6xl mb-4">⚠️</div>
+        <h1 class="text-3xl font-black tracking-tight mb-2">Sorry! Is in maintenance</h1>
+        <p class="text-sm font-bold text-gray-400 max-w-xs">Estamos ajustando alguns parafusos para melhorar sua experiência. Voltamos num piscar de olhos!</p>
+    </div>
+
+    <!-- TELA GLOBAL DE BANIMENTO -->
+    <div id="banned-screen" class="hidden fixed inset-0 bg-white z-[90] flex flex-col items-center justify-center text-center px-4">
+        <div class="text-6xl mb-4">🚫</div>
+        <h1 class="text-3xl font-black text-red-500 tracking-tight mb-2">Acesso Bloqueado</h1>
+        <p class="text-sm font-bold text-gray-400 max-w-xs">Esta conta violou os termos de uso do sistema comunitário e foi banida permanentemente.</p>
+    </div>
 
     <!-- Tela 1: Autenticação -->
     <div id="auth-screen" class="flex flex-col items-center justify-center min-h-screen px-4">
@@ -77,6 +92,12 @@
             <button onclick="switchTab('shop')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
                 <span class="text-xl">🛒</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Loja</span>
             </button>
+            
+            <!-- Botão Secreto do Painel de Admin (Ocultado por padrão) -->
+            <button id="nav-admin-btn" onclick="switchTab('admin')" class="hidden flex items-center gap-4 p-3 w-full bg-red-50 border border-red-200 rounded-xl font-extrabold text-red-600">
+                <span class="text-xl">🛠️</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Painel Admin</span>
+            </button>
+
             <button id="btn-logout" class="hidden md:flex items-center gap-4 p-3 w-full hover:bg-red-50 rounded-xl font-extrabold text-red-500 mt-auto">
                 <span>🚪</span> <span class="text-sm uppercase tracking-wider">Sair</span>
             </button>
@@ -87,6 +108,7 @@
             <!-- Barra de Status Superior -->
             <div class="flex items-center justify-end gap-6 border-b-2 border-[#e5e5e5] pb-4 mb-6 font-extrabold text-sm">
                 <div id="premium-badge" class="hidden px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"></div>
+                <div class="flex items-center gap-2 text-red-500">❤️ <span id="user-energy">5</span></div>
                 <div id="streak-container" class="flex items-center gap-2 text-orange-500">
                     <span id="streak-icon" class="text-xl">🔥</span> <span id="user-streak">0</span> dias
                 </div>
@@ -171,13 +193,13 @@
                 </div>
             </div>
 
-            <!-- TAB: SOCIAL (SISTEMA DE AMIGOS CORRIGIDO) -->
+            <!-- TAB: SOCIAL -->
             <div id="tab-social" class="tab-content hidden space-y-6">
                 <div class="duo-card rounded-2xl p-4 bg-white">
                     <h3 class="font-extrabold text-base mb-2">🤝 Adicionar Novo Amigo</h3>
                     <div class="flex gap-2">
-                        <input id="friend-search-input" type="text" placeholder="Insira o e-mail exato do seu irmão" class="flex-1 px-4 py-2 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
-                        <button onclick="sendFriendRequest()" class="duo-btn-blue text-white px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider">Enviar Convite</button>
+                        <input id="friend-search-input" type="text" placeholder="Insira o e-mail exato do usuário" class="flex-1 px-4 py-2 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
+                        <button onclick="sendFriendRequest()" class="duo-btn-blue text-white px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider">Enviar</button>
                     </div>
                     <p id="social-status-msg" class="text-xs font-bold mt-2 text-gray-400"></p>
                 </div>
@@ -193,12 +215,12 @@
                 </div>
 
                 <div class="border-t-2 border-[#e5e5e5] pt-4">
-                    <h3 class="font-extrabold text-lg mb-3">💬 Feed de Conquistas da Galera</h3>
+                    <h3 class="font-extrabold text-lg mb-3">💬 Feed de Conquistas</h3>
                     <div id="social-feed-container" class="space-y-4"></div>
                 </div>
             </div>
 
-            <!-- TAB: LOJA (MONETIZAÇÃO EXPERIMENTAL SUPER & META) -->
+            <!-- TAB: LOJA -->
             <div id="tab-shop" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-black text-center mb-2">💎 Escolha o seu Plano Meta</h2>
                 <p class="text-center text-sm font-bold text-gray-400 mb-6">Acesse recursos incríveis para acelerar seu aprendizado.</p>
@@ -240,15 +262,76 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="text-center pt-4">
                     <button onclick="subscribePlan('free')" class="text-xs font-bold text-gray-400 underline">Voltar para o Plano Gratuito</button>
+                </div>
+            </div>
+
+            <!-- TAB SECRETA: PAINEL DE ADMIN SUPREMO (SÓ EXIBIDA PARA MICHELE) -->
+            <div id="tab-admin" class="tab-content hidden space-y-6">
+                <div class="border-b-2 border-red-200 pb-2">
+                    <h2 class="text-2xl font-black text-red-600">🛠️ Painel de Controle do Desenvolvedor</h2>
+                    <p class="text-xs font-bold text-gray-400">Acesso restrito exclusivo para michele.nobrega20@gmail.com</p>
+                </div>
+
+                <!-- Controle de Manutenção Global -->
+                <div class="duo-card rounded-2xl p-4 bg-red-50 border-red-300">
+                    <h3 class="font-extrabold text-sm mb-1 text-red-800">⚠️ Estado do Sistema Sem Fio</h3>
+                    <p class="text-xs text-gray-500 mb-3">Ativar ou desativar a tela de manutenção global em tempo real para todos na plataforma.</p>
+                    <div class="flex items-center gap-3">
+                        <button id="admin-maintenance-toggle" onclick="toggleGlobalMaintenance()" class="duo-btn-red text-white text-xs font-extrabold py-2.5 px-4 rounded-xl uppercase tracking-wider">Carregando...</button>
+                        <span id="maintenance-status-badge" class="text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-md">Status</span>
+                    </div>
+                </div>
+
+                <!-- Gerenciador de Usuários Remoto -->
+                <div class="duo-card rounded-2xl p-4 bg-white">
+                    <h3 class="font-extrabold text-sm mb-3">🔍 Procurar e Modificar Usuário</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input id="admin-user-search" type="text" placeholder="E-mail exato do usuário alvo" class="flex-1 px-4 py-2 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-xl focus:outline-none focus:border-red-500 font-bold text-sm">
+                        <button onclick="adminSearchUser()" class="bg-gray-800 hover:bg-gray-900 text-white px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider">Buscar</button>
+                    </div>
+
+                    <!-- Formulário de Modificação (Injetado dinamicamente via JS) -->
+                    <div id="admin-user-editor" class="hidden space-y-4 pt-4 border-t border-gray-100">
+                        <h4 class="font-black text-sm text-gray-700">⚙️ Editando Registro de: <span id="admin-target-displayname" class="text-blue-500"></span></h4>
+                        <input type="hidden" id="admin-target-uid">
+                        
+                        <div class="grid grid-cols-2 gap-3 text-xs font-bold">
+                            <div>
+                                <label class="block mb-1 text-gray-500">💎 Lingots</label>
+                                <input id="admin-target-lingots" type="number" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white">
+                            </div>
+                            <div>
+                                <label class="block mb-1 text-gray-500">❤️ Energia (Vidas)</label>
+                                <input id="admin-target-energy" type="number" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white">
+                            </div>
+                            <div>
+                                <label class="block mb-1 text-gray-500">⚡ XP de Experiência</label>
+                                <input id="admin-target-xp" type="number" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white">
+                            </div>
+                            <div>
+                                <label class="block mb-1 text-gray-500">👑 Tipo de Assinatura</label>
+                                <select id="admin-target-sub" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white">
+                                    <option value="free">Plano Gratuito (Free)</option>
+                                    <option value="super">Duolingo Super</option>
+                                    <option value="meta">Duolingo Meta</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 pt-2">
+                            <button onclick="adminSaveUserChanges()" class="flex-1 bg-[#58cc02] text-white font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wide shadow-[0_3px_0_#46a302]">Salvar Alterações</button>
+                            <button id="admin-ban-btn" onclick="adminToggleBanUser()" class="bg-red-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wide shadow-[0_3px_0_#b91c1c]">Banir Usuário</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
+        // Configuração de credenciais padrão do seu ecossistema Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD3gIAvakHjgEJjZyfvGQaDO83QiW982eo",
             authDomain: "duolingo-neocities.firebaseapp.com",
@@ -271,6 +354,7 @@
         let currentStep = 0;
         let selectedOptionIndex = null;
         let isAnswerChecked = false;
+        let globalMaintenanceMode = false;
 
         const defaultAvatar = { skin: "#ffdbac", hair: "short", hairColor: "#4a3728", clothing: "#58cc02", accessory: "none", bg: "#ddf4ff" };
 
@@ -293,34 +377,6 @@
                     { q: 'Hola', type: 'escolha', options: ['Tchau', 'Olá', 'Obrigado'], correct: 1 },
                     { q: 'Buenos días significa "Boa noite".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
                     { q: 'Gracias', type: 'escolha', options: ['Por favor', 'De nada', 'Obrigado'], correct: 2 }
-                ],
-                comida_es: [
-                    { q: 'Manzana', type: 'escolha', options: ['Banana', 'Maçã', 'Uva'], correct: 1 }
-                ]
-            },
-            ja: {
-                hiragana: [
-                    { q: 'あ', type: 'escolha', options: ['A', 'I', 'U'], correct: 0 },
-                    { q: 'い', type: 'escolha', options: ['O', 'I', 'E'], correct: 1 },
-                    { q: 'う', type: 'escolha', options: ['E', 'U', 'O'], correct: 1 }
-                ]
-            },
-            ko: {
-                hangul: [
-                    { q: '안녕하세요', type: 'escolha', options: ['Obrigado', 'Olá', 'Tchau'], correct: 1 },
-                    { q: '우유', type: 'escolha', options: ['Leite', 'Café', 'Suco'], correct: 0 }
-                ]
-            },
-            matematica: {
-                aritmetica: [
-                    { q: 'Quanto é 7 + 5?', type: 'escolha', options: ['11', '12', '13'], correct: 1 },
-                    { q: 'Quanto é 9 x 6?', type: 'escolha', options: ['54', '48', '56'], correct: 0 }
-                ]
-            },
-            xadrez: {
-                regras: [
-                    { q: 'Qual peça se move em formato de "L"?', type: 'escolha', options: ['Bispo', 'Cavalo', 'Torre'], correct: 1 },
-                    { q: 'O Bispo só pode se mover pelas diagonais.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
                 ]
             }
         };
@@ -331,35 +387,21 @@
                 { id: 'familia', name: 'Família', icon: '👨‍👩‍👧', color: '#1cb0f6', xpRequired: 20 }
             ],
             es: [
-                { id: 'saludos', name: 'Saludos Básicos', icon: '🇪🇸', color: '#ffc800', xpRequired: 0 },
-                { id: 'comida_es', name: 'Restaurante', icon: '🍏', color: '#58cc02', xpRequired: 20 }
-            ],
-            ja: [
-                { id: 'hiragana', name: 'Alfabeto Hiragana', icon: '🏮', color: '#ff4b4b', xpRequired: 0 }
-            ],
-            ko: [
-                { id: 'hangul', name: 'Alfabeto Hangul', icon: '🇰🇷', color: '#1cb0f6', xpRequired: 0 }
-            ],
-            matematica: [
-                { id: 'aritmetica', name: 'Aritmética', icon: '🔢', color: '#58cc02', xpRequired: 0 }
-            ],
-            xadrez: [
-                { id: 'regras', name: 'Regras Básicas', icon: '👑', color: '#4a3728', xpRequired: 0 }
+                { id: 'saludos', name: 'Saludos Básicos', icon: '🇪🇸', color: '#ffc800', xpRequired: 0 }
             ]
         };
 
         function sanitizeEmail(email) { return email.toLowerCase().trim().replace(/\./g, ','); }
 
-        // --- SISTEMA NATIVO DE VOZ (TEXT-TO-SPEECH WITH ACCENTS) ---
+        // --- MOTOR DE VOZ TEXT-TO-SPEECH COM LOCALIZAÇÃO DE SOTAQUE ---
         function speak(text, courseKey) {
             if (!window.speechSynthesis) return;
-            window.speechSynthesis.cancel(); // Para vozes encavaladas
+            window.speechSynthesis.cancel();
 
             const langMap = { en: 'en-US', es: 'es-MX', ja: 'ja-JP', ko: 'ko-KR', matematica: 'pt-BR', xadrez: 'pt-BR' };
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = langMap[courseKey] || 'pt-BR';
             
-            // Localiza vozes nativas instaladas no SO do usuário
             const voices = window.speechSynthesis.getVoices();
             const matchingVoice = voices.find(v => v.lang.startsWith(utterance.lang));
             if (matchingVoice) utterance.voice = matchingVoice;
@@ -373,6 +415,48 @@
             }
         }
 
+        // --- SISTEMA INTERNO DE GERENCIAMENTO DE MANUTENÇÃO ---
+        db.ref('system/maintenance').on('value', (snapshot) => {
+            globalMaintenanceMode = snapshot.val() || false;
+            applyMaintenanceSecurity();
+        });
+
+        function applyMaintenanceSecurity() {
+            const screen = document.getElementById('maintenance-screen');
+            if (globalMaintenanceMode) {
+                // Se for você logado, ignora o bloqueio para permitir manutenção no painel
+                if (currentUser && currentUser.email === 'michele.nobrega20@gmail.com') {
+                    screen.classList.add('hidden');
+                } else {
+                    screen.classList.remove('hidden');
+                }
+            } else {
+                screen.classList.add('hidden');
+            }
+            updateAdminMaintenanceUI();
+        }
+
+        function updateAdminMaintenanceUI() {
+            const btn = document.getElementById('admin-maintenance-toggle');
+            const badge = document.getElementById('maintenance-status-badge');
+            if (!btn || !badge) return;
+
+            if (globalMaintenanceMode) {
+                btn.innerText = "Desativar Manutenção";
+                badge.innerText = "Em Manutenção";
+                badge.className = "text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-md bg-red-100 text-red-700";
+            } else {
+                btn.innerText = "Ativar Manutenção";
+                badge.innerText = "Online / Ativo";
+                badge.className = "text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-md bg-green-100 text-green-700";
+            }
+        }
+
+        window.toggleGlobalMaintenance = function() {
+            db.ref('system/maintenance').set(!globalMaintenanceMode);
+        };
+
+        // --- AVATAR GRAPHICS GENERATOR ---
         function generateAvatarSVG(config, subscriptionType = 'free') {
             const cfg = config || defaultAvatar;
             let hairSVG = '';
@@ -401,23 +485,18 @@
 
         function playSound(type) {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
+            const osc = ctx.createOscillator(); const gain = ctx.createGain();
             osc.connect(gain); gain.connect(ctx.destination);
             if (type === 'correct') {
-                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                osc.start(); osc.stop(ctx.currentTime + 0.3);
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime); osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.3);
             } else {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(130, ctx.currentTime);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                osc.start(); osc.stop(ctx.currentTime + 0.2);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.2);
             }
         }
 
-        // --- AUTH ---
+        // --- SISTEMA DE AUTENTICAÇÃO ---
         document.getElementById('btn-login-email').addEventListener('click', () => {
             auth.signInWithEmailAndPassword(document.getElementById('email-input').value, document.getElementById('password-input').value).catch(err => alert(err.message));
         });
@@ -426,7 +505,7 @@
             const email = document.getElementById('email-input').value;
             auth.createUserWithEmailAndPassword(email, document.getElementById('password-input').value).then((cred) => {
                 const uid = cred.user.uid;
-                db.ref('users/' + uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en", subscription: "free" });
+                db.ref('users/' + uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lastLessonDate: "", lingots: 50, energy: 5, avatar: defaultAvatar, currentCourse: "en", subscription: "free", banned: false });
                 db.ref('emails/' + sanitizeEmail(email)).set(uid);
             }).catch(err => alert(err.message));
         });
@@ -436,7 +515,7 @@
                 const uid = cred.user.uid;
                 db.ref('users/' + uid).once('value').then((snapshot) => {
                     if (!snapshot.exists()) {
-                        db.ref('users/' + uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en", subscription: "free" });
+                        db.ref('users/' + uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lastLessonDate: "", lingots: 50, energy: 5, avatar: defaultAvatar, currentCourse: "en", subscription: "free", banned: false });
                     }
                     db.ref('emails/' + sanitizeEmail(cred.user.email)).set(uid);
                 });
@@ -446,7 +525,21 @@
         document.getElementById('btn-logout').addEventListener('click', () => auth.signOut());
 
         auth.onAuthStateChanged((user) => {
-            if (user) { currentUser = user; document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('main-screen').classList.remove('hidden'); syncData(); }
+            if (user) { 
+                currentUser = user; 
+                document.getElementById('auth-screen').classList.add('hidden'); 
+                document.getElementById('main-screen').classList.remove('hidden'); 
+                
+                // Valida na hora se o e-mail logado é o seu master para injetar o painel de admin
+                if (currentUser.email === 'michele.nobrega20@gmail.com') {
+                    document.getElementById('nav-admin-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('nav-admin-btn').classList.add('hidden');
+                }
+                
+                applyMaintenanceSecurity();
+                syncData(); 
+            }
             else { currentUser = null; document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('main-screen').classList.add('hidden'); }
         });
 
@@ -455,25 +548,31 @@
                 if (!snapshot.exists()) return;
                 userData = snapshot.val();
                 
+                // Trava de segurança contra banimentos em tempo real
+                if (userData.banned === true) {
+                    document.getElementById('banned-screen').classList.remove('hidden');
+                    auth.signOut();
+                    return;
+                } else { document.getElementById('banned-screen').classList.add('hidden'); }
+
                 document.getElementById('user-streak').innerText = userData.streak || 0;
                 document.getElementById('user-lingots').innerText = userData.lingots || 50;
+                document.getElementById('user-energy').innerText = (userData.subscription === 'super' || userData.subscription === 'meta') ? '∞' : (userData.energy !== undefined ? userData.energy : 5);
+                
                 document.getElementById('profile-name-input').value = userData.displayName || "Estudante";
                 document.getElementById('profile-email').innerText = userData.email;
                 document.getElementById('profile-xp').innerText = userData.xp || 0;
                 document.getElementById('profile-level').innerText = Math.floor((userData.xp || 0) / 100) + 1;
                 document.getElementById('course-selector').value = userData.currentCourse || "en";
                 
-                // Configuração da assinatura na UI
                 const pBadge = document.getElementById('premium-badge');
                 const sub = userData.subscription || 'free';
                 if (sub === 'meta') {
                     pBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-white animate-pulse";
-                    pBadge.innerText = "👑 Meta User";
-                    pBadge.classList.remove('hidden');
+                    pBadge.innerText = "👑 Meta User"; pBadge.classList.remove('hidden');
                 } else if (sub === 'super') {
                     pBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-purple-600 text-white";
-                    pBadge.innerText = "✨ Super";
-                    pBadge.classList.remove('hidden');
+                    pBadge.innerText = "✨ Super"; pBadge.classList.remove('hidden');
                 } else { pBadge.classList.add('hidden'); }
 
                 const currentAvatarHTML = generateAvatarSVG(userData.avatar, sub);
@@ -489,18 +588,14 @@
             });
         }
 
-        // --- ASSINATURAS SIMULADAS ---
+        // --- SISTEMA DE ASSINATURAS ---
         window.subscribePlan = function(planType) {
-            db.ref('users/' + currentUser.uid).update({ subscription: planType }).then(() => {
-                alert(`Plano alterado para ${planType.toUpperCase()} com sucesso!`);
-            });
+            db.ref('users/' + currentUser.uid).update({ subscription: planType });
         };
 
         function renderTree(courseKey) {
-            const container = document.getElementById('dynamic-skills-tree');
-            container.innerHTML = '';
-            const skills = treeMeta[courseKey] || [];
-            const userXp = userData.xp || 0;
+            const container = document.getElementById('dynamic-skills-tree'); container.innerHTML = '';
+            const skills = treeMeta[courseKey] || []; const userXp = userData.xp || 0;
             
             skills.forEach((sk, idx) => {
                 const alignClass = idx % 2 === 0 ? '' : 'translate-x-12';
@@ -513,7 +608,6 @@
                     <div class="text-center ${alignClass} flex flex-col items-center">
                         ${btnHTML}
                         <p class="font-extrabold mt-2 text-xs text-gray-700">${sk.name}</p>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">${sk.xpRequired > 0 ? `Requer ${sk.xpRequired} XP` : 'Livre'}</p>
                     </div>
                 `;
             });
@@ -523,11 +617,15 @@
             db.ref('users/' + currentUser.uid).update({ currentCourse: e.target.value });
         });
 
-        // --- LIÇÕES & SISTEMA DE ÁUDIO AUTOMÁTICO ---
+        // --- EXECUÇÃO DAS LIÇÕES ---
         window.startLesson = function(skill) {
+            const currentEnergy = userData.energy !== undefined ? userData.energy : 5;
+            if (currentEnergy <= 0 && userData.subscription === 'free') {
+                alert("Você está sem energia! Aguarde ou adquira um plano Premium."); return;
+            }
             const course = userData.currentCourse || 'en';
-            currentLessonData = lessonsDB[course][skill]; 
-            if (!currentLessonData || currentLessonData.length === 0) { alert("Esta fase está em desenvolvimento!"); return; }
+            currentLessonData = lessonsDB[course][skill];
+            if (!currentLessonData) return;
             currentStep = 0; isAnswerChecked = false;
             document.getElementById('lesson-modal').classList.remove('hidden');
             renderStep();
@@ -543,13 +641,12 @@
             document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
 
             if (currentStep >= currentLessonData.length) {
-                // Fim da lição com cálculo de XP baseado no plano Meta ($2\times$ XP)
                 const isMeta = userData.subscription === 'meta';
                 const xpGanho = isMeta ? 20 : 10;
 
                 document.getElementById('lesson-progress').style.width = '100%';
-                document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center animate-bounce";
-                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Excelente!</h3><p>Fase batida! Você ganhou +${xpGanho} XP ${isMeta ? '(Bônus 2x Meta Ativo!)' : ''}.</p>`;
+                document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center";
+                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Excelente!</h3><p>Fase concluída! +${xpGanho} XP adicionados.</p>`;
                 document.getElementById('feedback-panel').classList.remove('hidden');
                 playSound('correct');
 
@@ -557,11 +654,9 @@
                 document.getElementById('lesson-submit').onclick = function() {
                     const hoje = new Date().toDateString();
                     let novaOfensiva = userData.streak || 0;
-                    if (userData.lastLessonDate !== hoje) { novaOfensiva++; }
+                    if (userData.lastLessonDate !== hoje) novaOfensiva++;
 
                     db.ref('users/' + currentUser.uid).update({ xp: (userData.xp || 0) + xpGanho, streak: novaOfensiva, lastLessonDate: hoje });
-                    db.ref('public_feed').push({ uid: currentUser.uid, userName: userData.displayName || "Estudante", avatar: userData.avatar || defaultAvatar, msg: `concluiu uma lição e acumulou +${xpGanho} XP! 🚀`, timestamp: Date.now(), likes: 0 });
-
                     closeLesson();
                     document.getElementById('lesson-submit').onclick = checkAnswer;
                 };
@@ -570,17 +665,9 @@
 
             const stepData = currentLessonData[currentStep];
             document.getElementById('lesson-question').innerText = stepData.q;
-            
-            // Ativa leitura da palavra/saudação automaticamente ao iniciar a questão
             speak(stepData.q, userData.currentCourse || 'en');
 
-            const badge = document.getElementById('activity-type-badge');
-            if (stepData.type === 'v_f') { badge.innerText = "🤔 Verdadeiro ou Falso"; badge.className = "inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-extrabold uppercase"; }
-            else if (stepData.type === 'lacuna') { badge.innerText = "🧩 Complete a Lacuna"; badge.className = "inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-extrabold uppercase"; }
-            else { badge.innerText = "📝 Múltipla Escolha"; badge.className = "inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-extrabold uppercase"; }
-
-            const optionsContainer = document.getElementById('lesson-options');
-            optionsContainer.innerHTML = '';
+            const optionsContainer = document.getElementById('lesson-options'); optionsContainer.innerHTML = '';
             stepData.options.forEach((opt, idx) => {
                 optionsContainer.innerHTML += `<button onclick="selectOption(${idx}, '${opt}')" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] bg-white" data-index="${idx}">${opt}</button>`;
             });
@@ -589,7 +676,6 @@
 
         window.selectOption = function(idx, wordText) {
             if (isAnswerChecked) return;
-            // Pronuncia a opção clicada
             speak(wordText, userData.currentCourse || 'en');
             document.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]'); b.classList.add('border-[#e5e5e5]'); });
             document.querySelector(`[data-index="${idx}"]`).classList.add('border-[#1cb0f6]', 'bg-[#ddf4ff]');
@@ -600,72 +686,57 @@
             if (selectedOptionIndex === null) return;
             if (isAnswerChecked) { currentStep++; renderStep(); return; }
 
-            const stepData = currentLessonData[currentStep];
-            isAnswerChecked = true;
+            const stepData = currentLessonData[currentStep]; isAnswerChecked = true;
             const panel = document.getElementById('feedback-panel');
 
             if (selectedOptionIndex === stepData.correct) {
                 playSound('correct');
                 panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-green-100 text-green-700";
                 document.getElementById('feedback-text').innerText = "✨ Resposta correta!";
-                document.getElementById('lesson-submit').innerText = "Continuar";
             } else {
                 playSound('wrong');
                 panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-red-100 text-red-700";
-                document.getElementById('feedback-text').innerText = `😢 Errado. Resposta certa: ${stepData.options[stepData.correct]}`;
-                document.getElementById('lesson-submit').innerText = "Entendi";
+                document.getElementById('feedback-text').innerText = `😢 Resposta certa: ${stepData.options[stepData.correct]}`;
+                
+                // Redução de vida automática se for plano gratuito (Free)
+                if (userData.subscription === 'free' || !userData.subscription) {
+                    let cEnergy = userData.energy !== undefined ? userData.energy : 5;
+                    cEnergy = Math.max(0, cEnergy - 1);
+                    db.ref('users/' + currentUser.uid).update({ energy: cEnergy });
+                }
             }
+            document.getElementById('lesson-submit').innerText = "Continuar";
             panel.classList.remove('hidden');
         };
 
-        // --- SISTEMA REESTRUTURADO E SEGURO DE PARCERIA E AMIZADES ---
+        // --- SISTEMA SOCIAL E DE AMIZADES ---
         window.sendFriendRequest = function() {
             const targetEmail = document.getElementById('friend-search-input').value.toLowerCase().trim();
-            const msgEl = document.getElementById('social-status-msg');
-            if (!targetEmail) return;
+            const msgEl = document.getElementById('social-status-msg'); if (!targetEmail) return;
 
             msgEl.innerText = "Procurando...";
-            const lookUpKey = targetEmail.replace(/\./g, ',');
-
-            db.ref('emails/' + lookUpKey).once('value', (snap) => {
+            db.ref('emails/' + targetEmail.replace(/\./g, ',')).once('value', (snap) => {
                 if (snap.exists()) {
                     const targetUid = snap.val();
-                    if (targetUid === currentUser.uid) { msgEl.innerText = "Você não pode enviar convite para você mesmo."; return; }
-
-                    db.ref(`users/${targetUid}/friend_requests/${currentUser.uid}`).set({
-                        fromName: userData.displayName || "Usuário",
-                        fromEmail: userData.email
-                    }).then(() => {
-                        msgEl.innerText = "Pronto! Convite de amizade enviado.";
-                        document.getElementById('friend-search-input').value = "";
+                    if (targetUid === currentUser.uid) { msgEl.innerText = "Operação inválida."; return; }
+                    db.ref(`users/${targetUid}/friend_requests/${currentUser.uid}`).set({ fromName: userData.displayName || "Usuário", fromEmail: userData.email }).then(() => {
+                        msgEl.innerText = "Convite enviado!"; document.getElementById('friend-search-input').value = "";
                     });
-                } else { msgEl.innerText = "Nenhum usuário localizado com esse e-mail."; }
-            }).catch(() => { msgEl.innerText = "Erro ao conectar."; });
+                } else msgEl.innerText = "Usuário não localizado.";
+            });
         };
 
         function loadIncomingRequests() {
-            const box = document.getElementById('notifications-box');
-            const listContainer = document.getElementById('incoming-requests-list');
+            const box = document.getElementById('notifications-box'); const listContainer = document.getElementById('incoming-requests-list');
             const badge = document.getElementById('notif-badge');
 
             db.ref(`users/${currentUser.uid}/friend_requests`).on('value', (snap) => {
                 listContainer.innerHTML = '';
                 if (snap.exists()) {
-                    const requests = snap.val();
-                    badge.innerText = Object.keys(requests).length;
+                    const requests = snap.val(); badge.innerText = Object.keys(requests).length;
                     badge.classList.remove('hidden'); box.classList.remove('hidden');
-
                     Object.keys(requests).forEach(senderUid => {
-                        const req = requests[senderUid];
-                        listContainer.innerHTML += `
-                            <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-amber-200">
-                                <div class="text-xs text-amber-900"><b>${req.fromName}</b> quer ser seu amigo.</div>
-                                <div class="flex gap-1">
-                                    <button onclick="acceptFriend('${senderUid}')" class="bg-[#58cc02] text-white text-xs px-3 py-1 font-bold rounded-lg">Aceitar</button>
-                                    <button onclick="rejectFriend('${senderUid}')" class="bg-gray-200 text-gray-600 text-xs px-3 py-1 font-bold rounded-lg">Recusar</button>
-                                </div>
-                            </div>
-                        `;
+                        listContainer.innerHTML += `<div class="flex items-center justify-between bg-white p-3 rounded-xl border"><span><b>${requests[senderUid].fromName}</b></span><div class="flex gap-1"><button onclick="acceptFriend('${senderUid}')" class="bg-[#58cc02] text-white text-xs px-3 py-1 font-bold rounded-lg">Aceitar</button></div></div>`;
                     });
                 } else { badge.classList.add('hidden'); box.classList.add('hidden'); }
             });
@@ -677,68 +748,35 @@
             db.ref(`users/${currentUser.uid}/friend_requests/${senderUid}`).remove();
         };
 
-        window.rejectFriend = function(senderUid) { db.ref(`users/${currentUser.uid}/friend_requests/${senderUid}`).remove(); };
-
         function loadSocialRanking() {
-            let rankingData = [];
-            rankingData.push({ uid: currentUser.uid, avatar: userData.avatar, name: (userData.displayName || "Você"), xp: (userData.xp || 0), isMe: true, subscription: userData.subscription || 'free' });
-
+            let rankingData = []; rankingData.push({ uid: currentUser.uid, avatar: userData.avatar, name: (userData.displayName || "Você"), xp: (userData.xp || 0), isMe: true, subscription: userData.subscription || 'free' });
             if (userData.friends) {
-                const promises = Object.keys(userData.friends).map(fUid => {
-                    return db.ref('users/' + fUid).once('value').then(snap => {
-                        if (snap.exists()) {
-                            const f = snap.val();
-                            rankingData.push({ uid: fUid, avatar: f.avatar, name: f.displayName || "Estudante", xp: f.xp || 0, isMe: false, subscription: f.subscription || 'free' });
-                        }
-                    });
-                });
+                const promises = Object.keys(userData.friends).map(fUid => db.ref('users/' + fUid).once('value').then(snap => {
+                    if (snap.exists()) { const f = snap.val(); rankingData.push({ uid: fUid, avatar: f.avatar, name: f.displayName || "Estudante", xp: f.xp || 0, isMe: false, subscription: f.subscription || 'free' }); }
+                }));
                 Promise.all(promises).then(() => renderSocialRankingHTML(rankingData));
-            } else { renderSocialRankingHTML(rankingData); }
+            } else renderSocialRankingHTML(rankingData);
         }
 
         function renderSocialRankingHTML(list) {
             list.sort((a, b) => b.xp - a.xp);
-            const container = document.getElementById('social-ranking-list');
-            container.innerHTML = '';
+            const container = document.getElementById('social-ranking-list'); container.innerHTML = '';
             list.forEach((u, i) => {
                 container.innerHTML += `
                     <div class="duo-card rounded-2xl p-4 flex items-center justify-between ${u.isMe ? 'bg-blue-50 border-blue-300' : 'bg-white'}">
                         <div class="flex items-center gap-4">
                             <span class="font-extrabold w-6 text-center">${i + 1}</span>
                             <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">${generateAvatarSVG(u.avatar, u.subscription)}</div>
-                            <h4 class="font-extrabold text-sm">${u.name} ${u.isMe ? '(Você)' : ''}</h4>
+                            <h4 class="font-extrabold text-sm">${u.name}</h4>
                         </div>
                         <div class="font-extrabold text-sm text-orange-500">⚡ ${u.xp} XP</div>
                     </div>
                 `;
             });
-            loadSocialFeed();
-        }
-
-        function loadSocialFeed() {
-            db.ref('public_feed').limitToLast(10).on('value', (snap) => {
-                const container = document.getElementById('social-feed-container');
-                container.innerHTML = '';
-                if (!snap.exists()) return;
-
-                const feeds = snap.val();
-                Object.keys(feeds).reverse().forEach(feedId => {
-                    const f = feeds[feedId];
-                    container.innerHTML += `
-                        <div class="duo-card rounded-2xl p-4 bg-white border border-gray-200 space-y-2">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200">${generateAvatarSVG(f.avatar, 'free')}</div>
-                                <div class="text-xs text-gray-600"><b class="text-sm text-gray-800">${f.userName}</b> ${f.msg}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-            });
         }
 
         window.toggleEditProfile = function() {
-            const input = document.getElementById('profile-name-input');
-            const btn = document.getElementById('btn-edit-profile');
+            const input = document.getElementById('profile-name-input'); const btn = document.getElementById('btn-edit-profile');
             if (input.disabled) { input.disabled = false; input.focus(); btn.innerText = "Salvar"; }
             else { input.disabled = true; btn.innerText = "Alterar Nome"; db.ref('users/' + currentUser.uid).update({ displayName: input.value }); }
         };
@@ -755,6 +793,72 @@
         };
 
         window.switchTab = function(t) { document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden')); document.getElementById(`tab-${t}`).classList.remove('hidden'); };
+
+        // --- SISTEMA INTERNO DO PAINEL DE CONTROLE EXCLUSIVO (ADMIN) ---
+        window.adminSearchUser = function() {
+            const emailTarget = document.getElementById('admin-user-search').value.toLowerCase().trim();
+            if (!emailTarget) return;
+            const lookupKey = emailTarget.replace(/\./g, ',');
+
+            db.ref('emails/' + lookupKey).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const targetUid = snapshot.val();
+                    db.ref('users/' + targetUid).once('value', (userSnap) => {
+                        const tUser = userSnap.val();
+                        
+                        document.getElementById('admin-target-uid').value = targetUid;
+                        document.getElementById('admin-target-displayname').innerText = `${tUser.displayName} (${tUser.email})`;
+                        document.getElementById('admin-target-lingots').value = tUser.lingots || 0;
+                        document.getElementById('admin-target-energy').value = tUser.energy !== undefined ? tUser.energy : 5;
+                        document.getElementById('admin-target-xp').value = tUser.xp || 0;
+                        document.getElementById('admin-target-sub').value = tUser.subscription || 'free';
+                        
+                        const banBtn = document.getElementById('admin-ban-btn');
+                        if (tUser.banned === true) {
+                            banBtn.innerText = "Desbanir Usuário";
+                            banBtn.className = "bg-green-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wide";
+                        } else {
+                            banBtn.innerText = "Banir Usuário";
+                            banBtn.className = "bg-red-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wide";
+                        }
+
+                        document.getElementById('admin-user-editor').classList.remove('hidden');
+                    });
+                } else {
+                    alert("Usuário não encontrado na base de e-mails.");
+                    document.getElementById('admin-user-editor').classList.add('hidden');
+                }
+            });
+        };
+
+        window.adminSaveUserChanges = function() {
+            const targetUid = document.getElementById('admin-target-uid').value;
+            if (!targetUid) return;
+
+            const updatedData = {
+                lingots: parseInt(document.getElementById('admin-target-lingots').value) || 0,
+                energy: parseInt(document.getElementById('admin-target-energy').value) || 0,
+                xp: parseInt(document.getElementById('admin-target-xp').value) || 0,
+                subscription: document.getElementById('admin-target-sub').value
+            };
+
+            db.ref('users/' + targetUid).update(updatedData).then(() => {
+                alert("Dados do usuário atualizados com sucesso via comando mestre!");
+            });
+        };
+
+        window.adminToggleBanUser = function() {
+            const targetUid = document.getElementById('admin-target-uid').value;
+            if (!targetUid) return;
+
+            db.ref(`users/${targetUid}/banned`).once('value', (snap) => {
+                const currentBanStatus = snap.val() || false;
+                db.ref(`users/${targetUid}`).update({ banned: !currentBanStatus }).then(() => {
+                    alert(currentBanStatus ? "Usuário desbanido!" : "Usuário banido com sucesso!");
+                    adminSearchUser(); // Recarrega o estado do form
+                });
+            });
+        };
     </script>
 </body>
 </html>
