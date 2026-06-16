@@ -3,86 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duolingo Ultra - GitHub Pages</title>
+    <title>Duolingo Meta - GitHub Pages</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
-        body { font-family: 'Nunito', sans-serif; }
+        body { font-family: 'Nunito', sans-serif; user-select: none; }
         .duo-btn-green { background-color: #58cc02; border-bottom: 4px solid #46a302; }
         .duo-btn-green:active { border-bottom-width: 0px; margin-top: 4px; }
         .duo-btn-blue { background-color: #1cb0f6; border-bottom: 4px solid #1899d6; }
         .duo-btn-blue:active { border-bottom-width: 0px; margin-top: 4px; }
         .duo-card { border: 2px solid #e5e5e5; border-bottom-width: 4px; }
         .duo-card:active { border-bottom-width: 2px; }
+        
+        /* Animação do Fogo da Ofensiva */
+        @keyframes pulse-fire {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px #f97316); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 12px #ef4444); }
+        }
+        .animate-fire { animation: pulse-fire 1.5s infinite ease-in-out; }
     </style>
 </head>
 <body class="bg-white text-[#3c3c3c] antialiased">
 
-    <!-- Tela 1: Login / Cadastro Real -->
     <div id="auth-screen" class="flex flex-col items-center justify-center min-h-screen px-4">
         <div class="text-center max-w-sm w-full">
-            <div class="text-6xl mb-4">🦉</div>
+            <div class="text-6xl mb-4 animate-bounce">🦉</div>
             <h1 class="text-3xl font-extrabold text-[#58cc02] tracking-wide mb-8">duolingo</h1>
-            
             <div class="space-y-3 mb-6">
                 <input id="email-input" type="email" placeholder="E-mail" class="w-full px-4 py-3 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-2xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
                 <input id="password-input" type="password" placeholder="Senha" class="w-full px-4 py-3 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-2xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
             </div>
-
-            <button id="btn-login-email" class="w-full duo-btn-green text-white font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-3 transition-all">Entrar com Email</button>
+            <button id="btn-login-email" class="w-full duo-btn-green text-white font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-3 transition-all">Entrar</button>
             <button id="btn-register-email" class="w-full border-2 border-[#e5e5e5] hover:bg-[#f7f7f7] font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-6 transition-all">Criar Conta</button>
-
             <div class="relative flex py-4 items-center"><div class="flex-grow border-t border-[#e5e5e5]"></div><span class="flex-shrink mx-4 text-[#afafaf] font-bold text-xs uppercase">Ou</span><div class="flex-grow border-t border-[#e5e5e5]"></div></div>
             <button id="btn-login-google" class="w-full border-2 border-[#e5e5e5] hover:bg-[#f7f7f7] font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google"> Entrar com o Google
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google"> Entrar com Google
             </button>
         </div>
     </div>
 
-    <!-- Tela 2: Dashboard Principal -->
     <div id="main-screen" class="hidden min-h-screen flex flex-col md:flex-row">
-        <!-- Sidebar Navigation -->
         <nav class="w-full md:w-64 border-r-2 border-[#e5e5e5] p-4 flex flex-row md:flex-col justify-between md:justify-start gap-2 fixed bottom-0 md:relative bg-white z-50">
             <div class="hidden md:block text-2xl font-extrabold text-[#58cc02] tracking-wide p-4 mb-6">duolingo</div>
-            
             <button onclick="switchTab('learn')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
                 <span class="text-xl">🏡</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Aprender</span>
             </button>
             <button onclick="switchTab('profile')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
-                <span id="nav-avatar" class="text-xl">🦉</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Perfil</span>
+                <div id="nav-avatar-container" class="w-6 h-6 rounded-full overflow-hidden"></div>
+                <span class="hidden md:inline text-sm uppercase tracking-wider">Perfil</span>
             </button>
-            <button onclick="switchTab('friends')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
-                <span class="text-xl">👑</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Ranking</span>
+            <button onclick="switchTab('social')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777] relative">
+                <span class="text-xl">👥</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Social / Ligas</span>
+                <span id="notif-badge" class="hidden absolute top-2 left-7 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
             </button>
-            
             <button id="btn-logout" class="hidden md:flex items-center gap-4 p-3 w-full hover:bg-red-50 rounded-xl font-extrabold text-red-500 mt-auto">
                 <span>🚪</span> <span class="text-sm uppercase tracking-wider">Sair</span>
             </button>
         </nav>
 
-        <!-- Área de Conteúdo -->
         <main class="flex-1 p-6 mb-20 md:mb-0 max-w-2xl mx-auto w-full">
             <div class="flex items-center justify-end gap-6 border-b-2 border-[#e5e5e5] pb-4 mb-6 font-extrabold text-sm">
-                <div class="flex items-center gap-2 text-orange-500"><span>🔥</span> <span id="user-streak">0</span></div>
+                <div id="streak-container" class="flex items-center gap-2 text-orange-500 cursor-pointer">
+                    <span id="streak-icon" class="text-xl">🔥</span> <span id="user-streak">0</span> dias
+                </div>
                 <div class="flex items-center gap-2 text-[#ffc800]"><span>💎</span> <span id="user-lingots">50</span></div>
             </div>
 
-            <!-- Aba: Aprender -->
             <div id="tab-learn" class="tab-content">
                 <div class="mb-6">
-                    <label class="block text-xs font-extrabold text-[#afafaf] uppercase tracking-wider mb-2">Curso Atual</label>
+                    <label class="block text-xs font-extrabold text-[#afafaf] uppercase tracking-wider mb-2">Estudar idioma:</label>
                     <select id="course-selector" class="bg-white border-2 border-[#e5e5e5] rounded-xl px-4 py-2 font-bold focus:outline-none">
                         <option value="en">🇺🇸 Inglês</option>
                         <option value="es">🇪🇸 Espanhol</option>
@@ -91,37 +88,21 @@
                     </select>
                 </div>
 
-                <!-- Árvore Zig-Zag -->
                 <div class="flex flex-col items-center gap-6 py-4">
-                    <div class="text-center">
-                        <button onclick="startLesson('saudaçoes')" class="w-16 h-16 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_3px_0_#46a302] transition-all">💬</button>
-                        <p class="font-extrabold mt-2 text-xs">Saudações</p>
-                    </div>
-                    <div class="text-center translate-x-12">
-                        <button onclick="startLesson('comidas')" class="w-16 h-16 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_3px_0_#46a302] transition-all">🍎</button>
-                        <p class="font-extrabold mt-2 text-xs">Comidas</p>
-                    </div>
-                    <div class="text-center -translate-x-12">
-                        <button onclick="startLesson('pronuncia')" class="w-16 h-16 bg-[#1cb0f6] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#1899d6] hover:translate-y-[2px] hover:shadow-[0_3px_0_#1899d6] transition-all">🗣️</button>
-                        <p class="font-extrabold mt-2 text-xs">Pronúncia</p>
-                    </div>
-                    <div class="text-center">
-                        <button onclick="startLesson('palavras')" class="w-16 h-16 bg-[#ffc800] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#e6b400] hover:translate-y-[2px] hover:shadow-[0_3px_0_#e6b400] transition-all">📚</button>
-                        <p class="font-extrabold mt-2 text-xs">Palavras Úteis</p>
-                    </div>
-                    <div class="text-center translate-x-12">
-                        <button onclick="startLesson('viagem')" class="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#c73e00] hover:translate-y-[2px] hover:shadow-[0_3px_0_#c73e00] transition-all">✈️</button>
-                        <p class="font-extrabold mt-2 text-xs">Viagem</p>
-                    </div>
+                    <div class="text-center"><button onclick="startLesson('saudaçoes')" class="w-16 h-16 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_3px_0_#46a302] transition-all">💬</button><p class="font-extrabold mt-2 text-xs">Saudações</p></div>
+                    <div class="text-center translate-x-12"><button onclick="startLesson('comidas')" class="w-16 h-16 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_3px_0_#46a302] transition-all">🍎</button><p class="font-extrabold mt-2 text-xs">Comidas</p></div>
+                    <div class="text-center -translate-x-12"><button onclick="startLesson('pronuncia')" class="w-16 h-16 bg-[#1cb0f6] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#1899d6] hover:translate-y-[2px] hover:shadow-[0_3px_0_#1899d6] transition-all">🗣️</button><p class="font-extrabold mt-2 text-xs">Pronúncia</p></div>
+                    <div class="text-center"><button onclick="startLesson('palavras')" class="w-16 h-16 bg-[#ffc800] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#e6b400] hover:translate-y-[2px] hover:shadow-[0_3px_0_#e6b400] transition-all">📚</button><p class="font-extrabold mt-2 text-xs">Palavras Úteis</p></div>
+                    <div class="text-center translate-x-12"><button onclick="startLesson('viagem')" class="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#c73e00] hover:translate-y-[2px] hover:shadow-[0_3px_0_#c73e00] transition-all">✈️</button><p class="font-extrabold mt-2 text-xs">Viagem</p></div>
                 </div>
 
-                <!-- Modal de Lição SEM POPUPS -->
                 <div id="lesson-modal" class="hidden fixed inset-0 bg-white z-50 p-6 flex flex-col justify-between">
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center max-w-md mx-auto w-full">
                         <button onclick="closeLesson()" class="text-2xl font-bold text-[#afafaf]">✕</button>
                         <div class="w-full mx-4 bg-[#e5e5e5] h-4 rounded-full overflow-hidden">
                             <div id="lesson-progress" class="bg-[#58cc02] h-full transition-all duration-300" style="width: 0%"></div>
                         </div>
+                        <span id="lesson-counter" class="font-bold text-sm text-[#afafaf]">1/10</span>
                     </div>
 
                     <div id="lesson-main-content" class="text-center max-w-md mx-auto my-auto w-full">
@@ -130,65 +111,108 @@
                         <div id="lesson-options" class="grid grid-cols-1 gap-3"></div>
                     </div>
 
-                    <div id="feedback-panel" class="w-full max-w-md mx-auto rounded-2xl p-4 mb-4 hidden font-extrabold text-sm transition-all duration-200">
+                    <div id="feedback-panel" class="w-full max-w-md mx-auto rounded-2xl p-4 mb-4 hidden font-extrabold text-sm">
                         <p id="feedback-text" class="text-lg"></p>
                     </div>
-
                     <button id="lesson-submit" onclick="checkAnswer()" class="w-full max-w-md mx-auto duo-btn-blue text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider">Verificar</button>
                 </div>
             </div>
 
-            <!-- Aba: Perfil -->
             <div id="tab-profile" class="tab-content hidden">
-                <div class="duo-card rounded-2xl p-6 mb-6 flex flex-col sm:flex-row items-center gap-6">
-                    <div class="relative">
-                        <div id="profile-avatar-display" class="text-6xl bg-[#f7f7f7] p-4 rounded-full border-2 border-[#e5e5e5]">🦉</div>
-                        <select id="avatar-selector" class="absolute inset-0 opacity-0 cursor-pointer">
-                            <option value="🦉">🦉 Duo</option><option value="🐱">🐱 Gatinho</option>
-                            <option value="🦊">🦊 Raposinha</option><option value="🐻">🐻 Ursinho</option>
-                            <option value="🐸">🐸 Sapinho</option><option value="🦁">🦁 Leãozinho</option>
-                            <option value="🦄">🦄 Unicórnio</option><option value="🐼">🐼 Panda</option>
-                            <option value="🦈">🦈 Tubarão</option><option value="🤖">🤖 Robô</option>
-                        </select>
+                <div class="duo-card rounded-2xl p-6 mb-6 flex flex-col sm:flex-row items-center gap-6 bg-white relative">
+                    <div class="flex flex-col items-center gap-2">
+                        <div id="profile-avatar-render" class="w-32 h-32 rounded-full border-4 border-[#e5e5e5] shadow-inner overflow-hidden bg-gray-100"></div>
+                        <button onclick="openAvatarBuilder()" class="text-xs bg-[#1cb0f6] text-white font-extrabold px-3 py-1.5 rounded-xl uppercase tracking-wider shadow-[0_3px_0_#1899d6] active:translate-y-[2px] active:shadow-none">Editar Boneco</button>
                     </div>
                     <div class="flex-1 w-full text-center sm:text-left">
-                        <label class="text-xs font-bold text-gray-400 uppercase">Nome de Exibição (Mude aqui)</label>
-                        <input id="profile-name-input" type="text" class="text-2xl font-extrabold bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-[#1cb0f6] focus:outline-none w-full py-1 text-center sm:text-left">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <input id="profile-name-input" type="text" disabled class="text-2xl font-extrabold bg-transparent border-b-2 border-transparent py-1 w-full text-center sm:text-left focus:outline-none focus:border-[#1cb0f6]">
+                            <button id="btn-edit-profile" onclick="toggleEditProfile()" class="text-xs font-bold text-[#1cb0f6] underline cursor-pointer">Alterar Nome</button>
+                        </div>
                         <p id="profile-email" class="text-[#afafaf] font-bold text-sm mt-1"></p>
                     </div>
                 </div>
+
+                <div id="avatar-builder-panel" class="hidden duo-card rounded-2xl p-4 mb-6 bg-[#f7f7f7] border-2 border-[#1cb0f6]">
+                    <h3 class="font-extrabold text-lg mb-4 text-center text-[#1cb0f6]">🎨 Customizar Seu Personagem</h3>
+                    <div class="grid grid-cols-2 gap-3 text-xs font-bold">
+                        <div>
+                            <label class="block mb-1 text-gray-500">Cor de Pele</label>
+                            <select id="av-skin" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white focus:outline-none" onchange="previewAvatar()">
+                                <option value="#ffdbac">Pele Clara</option><option value="#f1c27d">Pele Morena</option><option value="#8d5524">Pele Negra</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-gray-500">Estilo do Cabelo</label>
+                            <select id="av-hair" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white focus:outline-none" onchange="previewAvatar()">
+                                <option value="short">Curto</option><option value="long">Comprido</option><option value="undercut">Arrepiado</option><option value="none">Careca</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-gray-500">Cor do Cabelo</label>
+                            <select id="av-hair-color" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white focus:outline-none" onchange="previewAvatar()">
+                                <option value="#4a3728">Castanho</option><option value="#222222">Preto</option><option value="#e5c158">Loiro</option><option value="#b83333">Ruivo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-gray-500">Roupas</label>
+                            <select id="av-clothing" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white focus:outline-none" onchange="previewAvatar()">
+                                <option value="#58cc02">Moletom Coruja</option><option value="#1cb0f6">Camiseta Azul</option><option value="#ff4b4b">Jaqueta Vermelha</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-gray-500">Acessórios</label>
+                            <select id="av-accessory" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white focus:outline-none" onchange="previewAvatar()">
+                                <option value="none">Nenhum</option><option value="glasses">Óculos Geek</option><option value="hat">Boné Virado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-gray-500">Cor de Fundo</label>
+                            <select id="av-bg" class="w-full p-2 border-2 border-gray-200 rounded-xl bg-white focus:outline-none" onchange="previewAvatar()">
+                                <option value="#ddf4ff">Céu Claro</option><option value="#e8fcda">Verde Suave</option><option value="#fff1cb">Ouro Amarelo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="saveAvatar()" class="flex-1 bg-[#58cc02] text-white font-extrabold py-2 rounded-xl text-sm uppercase tracking-wide shadow-[0_3px_0_#46a302]">Salvar Design</button>
+                        <button onclick="closeAvatarBuilder()" class="bg-gray-300 text-gray-700 font-extrabold px-4 py-2 rounded-xl text-sm uppercase tracking-wide">Voltar</button>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="duo-card rounded-2xl p-4 text-center">
-                        <span class="text-2xl">⚡</span>
-                        <h3 class="font-extrabold text-xl mt-1" id="profile-xp">0</h3>
-                        <p class="text-[#afafaf] text-xs font-bold uppercase">Total de XP</p>
-                    </div>
-                    <div class="duo-card rounded-2xl p-4 text-center">
-                        <span class="text-2xl">👑</span>
-                        <h3 class="font-extrabold text-xl mt-1" id="profile-level">1</h3>
-                        <p class="text-[#afafaf] text-xs font-bold uppercase">Nível</p>
-                    </div>
+                    <div class="duo-card rounded-2xl p-4 text-center"><span class="text-2xl">⚡</span><h3 class="font-extrabold text-xl mt-1" id="profile-xp">0</h3><p class="text-[#afafaf] text-xs font-bold uppercase">Total de XP</p></div>
+                    <div class="duo-card rounded-2xl p-4 text-center"><span class="text-2xl">👑</span><h3 class="font-extrabold text-xl mt-1" id="profile-level">1</h3><p class="text-[#afafaf] text-xs font-bold uppercase">Nível</p></div>
                 </div>
             </div>
 
-            <!-- Aba: Amigos & Ranking -->
-            <div id="tab-friends" class="tab-content hidden">
-                <div class="duo-card rounded-2xl p-4 mb-6">
-                    <h3 class="font-extrabold text-base mb-3">Adicionar Amigos nas Ligas</h3>
+            <div id="tab-social" class="tab-content hidden space-y-6">
+                <div class="duo-card rounded-2xl p-4 bg-white">
+                    <h3 class="font-extrabold text-base mb-2">🤝 Adicionar Novo Amigo</h3>
                     <div class="flex gap-2">
-                        <input id="friend-search-input" type="text" placeholder="E-mail exato do amigo" class="flex-1 px-4 py-2 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
-                        <button onclick="addFriend()" class="duo-btn-blue text-white px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider">Seguir</button>
+                        <input id="friend-search-input" type="text" placeholder="Insira o e-mail exato do seu irmão/amigo" class="flex-1 px-4 py-2 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
+                        <button onclick="sendFriendRequest()" class="duo-btn-blue text-white px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider">Enviar Convite</button>
                     </div>
-                    <p id="friend-status-msg" class="text-xs font-bold mt-2 text-gray-400"></p>
+                    <p id="social-status-msg" class="text-xs font-bold mt-2 text-gray-400"></p>
                 </div>
 
-                <h3 class="font-extrabold text-lg mb-3">🏆 Ranking da Liga (Por XP)</h3>
-                <div id="friends-list" class="space-y-3"></div>
+                <div id="notifications-box" class="duo-card rounded-2xl p-4 bg-amber-50 hidden border-2 border-amber-300">
+                    <h3 class="font-extrabold text-amber-800 text-sm mb-2">🔔 Convites de Amizade Recebidos</h3>
+                    <div id="incoming-requests-list" class="space-y-2"></div>
+                </div>
+
+                <div>
+                    <h3 class="font-extrabold text-lg mb-3">🏆 Tabela da Liga de Amigos</h3>
+                    <div id="social-ranking-list" class="space-y-3"></div>
+                </div>
+
+                <div class="border-t-2 border-[#e5e5e5] pt-4">
+                    <h3 class="font-extrabold text-lg mb-3">💬 Feed de Conquistas da Galera</h3>
+                    <div id="social-feed-container" class="space-y-4"></div>
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- LÓGICA DO SISTEMA -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyD3gIAvakHjgEJjZyfvGQaDO83QiW982eo",
@@ -208,106 +232,343 @@
 
         let currentUser = null;
         let userData = {};
-        let currentLessonData = null;
+        let currentLessonData = [];
         let currentStep = 0;
         let selectedOptionIndex = null;
         let isAnswerChecked = false;
 
+        // Estrutura do Avatar Padrão
+        const defaultAvatar = { skin: "#ffdbac", hair: "short", hairColor: "#4a3728", clothing: "#58cc02", accessory: "none", bg: "#ddf4ff" };
+
+        // BANCO DE DADOS DINÂMICO COMPLETO: 10 QUESTÕES POR MATÉRIA/SKILL
         const lessonsDB = {
             en: {
                 saudaçoes: [
-                    { q: 'Hello', options: ['Olá', 'Tchau', 'Maçã'], correct: 0 },
-                    { q: 'Good morning', options: ['Boa noite', 'Bom dia', 'Por favor'], correct: 1 }
+                    { q: 'Hello', options: ['Olá', 'Carro', 'Noite'], correct: 0 },
+                    { q: 'Good morning', options: ['Boa tarde', 'Bom dia', 'Tchau'], correct: 1 },
+                    { q: 'Goodbye', options: ['Por favor', 'Obrigado', 'Adeus'], correct: 2 },
+                    { q: 'Thank you', options: ['Obrigado', 'De nada', 'Oi'], correct: 0 },
+                    { q: 'Please', options: ['Maçã', 'Por favor', 'Sim'], correct: 1 },
+                    { q: 'Good night', options: ['Boa noite', 'Bom dia', 'Olá'], correct: 0 },
+                    { q: 'Welcome', options: ['Desculpe', 'Bem-vindo', 'Entrada'], correct: 1 },
+                    { q: 'How are you?', options: ['Como você está?', 'Qual seu nome?', 'Onde fica?'], correct: 0 },
+                    { q: 'See you later', options: ['Até logo', 'Bom dia', 'Até amanhã'], correct: 0 },
+                    { q: 'Nice to meet you', options: ['Prazer em conhecer você', 'Obrigado por tudo', 'Até breve'], correct: 0 }
                 ],
                 comidas: [
-                    { q: 'Bread', options: ['Carne', 'Pão', 'Suco'], correct: 1 },
-                    { q: 'Water', options: ['Leite', 'Água', 'Arroz'], correct: 1 }
+                    { q: 'Bread', options: ['Leite', 'Pão', 'Queijo'], correct: 1 },
+                    { q: 'Water', options: ['Água', 'Vinho', 'Suco'], correct: 0 },
+                    { q: 'Apple', options: ['Laranja', 'Banana', 'Maçã'], correct: 2 },
+                    { q: 'Milk', options: ['Café', 'Leite', 'Chá'], correct: 1 },
+                    { q: 'Cheese', options: ['Queijo', 'Carne', 'Ovo'], correct: 0 },
+                    { q: 'Meat', options: ['Peixe', 'Carne', 'Frango'], correct: 1 },
+                    { q: 'Rice', options: ['Feijão', 'Arroz', 'Macarrão'], correct: 1 },
+                    { q: 'Egg', options: ['Ovo', 'Pão', 'Bolo'], correct: 0 },
+                    { q: 'Fish', options: ['Peixe', 'Camarão', 'Lagosta'], correct: 0 },
+                    { q: 'Coffee', options: ['Chá', 'Suco', 'Café'], correct: 2 }
                 ],
-                pronuncia: [{ q: 'Red', options: ['Vermelho', 'Azul', 'Verde'], correct: 0 }],
-                palavras: [{ q: 'Please', options: ['De nada', 'Por favor', 'Obrigado'], correct: 1 }],
-                viagem: [{ q: 'Passport', options: ['Avião', 'Hotel', 'Passaporte'], correct: 2 }]
+                pronuncia: [
+                    { q: 'Red', options: ['Vermelho', 'Rosa', 'Roxo'], correct: 0 },
+                    { q: 'Blue', options: ['Verde', 'Azul', 'Amarelo'], correct: 1 },
+                    { q: 'One', options: ['Dois', 'Três', 'Um'], correct: 2 },
+                    { q: 'Two', options: ['Dois', 'Quatro', 'Cinco'], correct: 0 },
+                    { q: 'Three', options: ['Seis', 'Três', 'Sete'], correct: 1 },
+                    { q: 'Dog', options: ['Cachorro', 'Gato', 'Pássaro'], correct: 0 },
+                    { q: 'Cat', options: ['Rato', 'Gato', 'Leão'], correct: 1 },
+                    { q: 'Boy', options: ['Homem', 'Mulher', 'Menino'], correct: 2 },
+                    { q: 'Girl', options: ['Menina', 'Moço', 'Bebê'], correct: 0 },
+                    { q: 'House', options: ['Prédio', 'Casa', 'Escola'], correct: 1 }
+                ],
+                palavras: [
+                    { q: 'Yes', options: ['Não', 'Sim', 'Talvez'], correct: 1 },
+                    { q: 'No', options: ['Não', 'Sim', 'Nunca'], correct: 0 },
+                    { q: 'Name', options: ['Nome', 'Sobrenome', 'Idade'], correct: 0 },
+                    { q: 'Friend', options: ['Inimigo', 'Amigo', 'Irmão'], correct: 1 },
+                    { q: 'Family', options: ['Escola', 'Trabalho', 'Família'], correct: 2 },
+                    { q: 'School', options: ['Escola', 'Hospital', 'Cinema'], correct: 0 },
+                    { q: 'Book', options: ['Caderno', 'Livro', 'Caneta'], correct: 1 },
+                    { q: 'City', options: ['País', 'Estado', 'Cidade'], correct: 2 },
+                    { q: 'Time', options: ['Tempo / Hora', 'Clima', 'Espaço'], correct: 0 },
+                    { q: 'Love', options: ['Ódio', 'Amor', 'Paz'], correct: 1 }
+                ],
+                viagem: [
+                    { q: 'Passport', options: ['Passagem', 'Passaporte', 'Malas'], correct: 1 },
+                    { q: 'Hotel', options: ['Casa', 'Albergue', 'Hotel'], correct: 2 },
+                    { q: 'Airport', options: ['Rodoviária', 'Aeroporto', 'Estação'], correct: 1 },
+                    { q: 'Ticket', options: ['Passagem / Bilhete', 'Dinheiro', 'Carteira'], correct: 0 },
+                    { q: 'Car', options: ['Carro', 'Moto', 'Trem'], correct: 0 },
+                    { q: 'Airplane', options: ['Navio', 'Avião', 'Helicóptero'], correct: 1 },
+                    { q: 'Suitcase', options: ['Mala', 'Mochila', 'Bolsa'], correct: 0 },
+                    { q: 'Train', options: ['Metrô', 'Trem', 'Ônibus'], correct: 1 },
+                    { q: 'Map', options: ['Bússola', 'Guia', 'Mapa'], correct: 2 },
+                    { q: 'Taxi', options: ['Carona', 'Táxi', 'Motorista'], correct: 1 }
+                ]
             },
             es: {
-                saudaçoes: [{ q: 'Hola', options: ['Olá', 'Adeus', 'Obrigado'], correct: 0 }],
-                comidas: [{ q: 'Leche', options: ['Leite', 'Água', 'Pão'], correct: 0 }],
-                pronuncia: [{ q: 'Niño', options: ['Menino', 'Menina', 'Carro'], correct: 0 }],
-                palavras: [{ q: 'Gracias', options: ['Por favor', 'Obrigado', 'Olá'], correct: 1 }],
-                viagem: [{ q: 'Avión', options: ['Trem', 'Carro', 'Avião'], correct: 2 }]
+                saudaçoes: [
+                    { q: 'Hola', options: ['Olá', 'Tchau', 'Sim'], correct: 0 },
+                    { q: 'Buenos días', options: ['Boa noite', 'Bom dia', 'Por favor'], correct: 1 },
+                    { q: 'Adiós', options: ['Até logo', 'Adeus', 'Oi'], correct: 1 },
+                    { q: 'Gracias', options: ['Obrigado', 'Por favor', 'De nada'], correct: 0 },
+                    { q: 'Por favor', options: ['De nada', 'Por favor', 'Obrigado'], correct: 1 },
+                    { q: 'Buenas noches', options: ['Boa noite', 'Boa tarde', 'Olá'], correct: 0 },
+                    { q: 'Bienvenido', options: ['Desculpe', 'Bem-vindo', 'Entrada'], correct: 1 },
+                    { q: '¿Cómo estás?', options: ['Como você está?', 'Qual seu nome?', 'Onde fica?'], correct: 0 },
+                    { q: 'Hasta luego', options: ['Até logo', 'Bom dia', 'Até amanhã'], correct: 0 },
+                    { q: 'Mucho gusto', options: ['Prazer em conhecer', 'Obrigado por tudo', 'Até breve'], correct: 0 }
+                ],
+                comidas: [
+                    { q: 'Pan', options: ['Leite', 'Pão', 'Queijo'], correct: 1 },
+                    { q: 'Agua', options: ['Água', 'Vinho', 'Suco'], correct: 0 },
+                    { q: 'Manzana', options: ['Laranja', 'Banana', 'Maçã'], correct: 2 },
+                    { q: 'Leche', options: ['Café', 'Leite', 'Chá'], correct: 1 },
+                    { q: 'Queso', options: ['Queijo', 'Carne', 'Ovo'], correct: 0 },
+                    { q: 'Carne', options: ['Peixe', 'Carne', 'Frango'], correct: 1 },
+                    { q: 'Arroz', options: ['Feijão', 'Arroz', 'Macarrão'], correct: 1 },
+                    { q: 'Huevo', options: ['Ovo', 'Pão', 'Bolo'], correct: 0 },
+                    { q: 'Pescado', options: ['Peixe', 'Camarão', 'Lagosta'], correct: 0 },
+                    { q: 'Café', options: ['Chá', 'Suco', 'Café'], correct: 2 }
+                ],
+                pronuncia: [
+                    { q: 'Rojo', options: ['Vermelho', 'Rosa', 'Roxo'], correct: 0 },
+                    { q: 'Azul', options: ['Verde', 'Azul', 'Amarelo'], correct: 1 },
+                    { q: 'Uno', options: ['Dois', 'Três', 'Um'], correct: 2 },
+                    { q: 'Dos', options: ['Dois', 'Quatro', 'Cinco'], correct: 0 },
+                    { q: 'Tres', options: ['Seis', 'Três', 'Sete'], correct: 1 },
+                    { q: 'Perro', options: ['Cachorro', 'Gato', 'Pássaro'], correct: 0 },
+                    { q: 'Gato', options: ['Rato', 'Gato', 'Leão'], correct: 1 },
+                    { q: 'Niño', options: ['Homem', 'Mulher', 'Menino'], correct: 2 },
+                    { q: 'Niña', options: ['Menina', 'Moço', 'Bebê'], correct: 0 },
+                    { q: 'Casa', options: ['Prédio', 'Casa', 'Escola'], correct: 1 }
+                ],
+                palavras: [
+                    { q: 'Sí', options: ['Não', 'Sim', 'Talvez'], correct: 1 },
+                    { q: 'No', options: ['Não', 'Sim', 'Nunca'], correct: 0 },
+                    { q: 'Nombre', options: ['Nome', 'Sobrenome', 'Idade'], correct: 0 },
+                    { q: 'Amigo', options: ['Inimigo', 'Amigo', 'Irmão'], correct: 1 },
+                    { q: 'Familia', options: ['Escola', 'Trabalho', 'Família'], correct: 2 },
+                    { q: 'Escuela', options: ['Escola', 'Hospital', 'Cinema'], correct: 0 },
+                    { q: 'Libro', options: ['Caderno', 'Livro', 'Caneta'], correct: 1 },
+                    { q: 'Ciudad', options: ['País', 'Estado', 'Cidade'], correct: 2 },
+                    { q: 'Tiempo', options: ['Tempo / Hora', 'Clima', 'Espaço'], correct: 0 },
+                    { q: 'Amor', options: ['Ódio', 'Amor', 'Paz'], correct: 1 }
+                ],
+                viagem: [
+                    { q: 'Pasaporte', options: ['Passagem', 'Passaporte', 'Malas'], correct: 1 },
+                    { q: 'Hotel', options: ['Casa', 'Albergue', 'Hotel'], correct: 2 },
+                    { q: 'Aeropuerto', options: ['Rodoviária', 'Aeroporto', 'Estação'], correct: 1 },
+                    { q: 'Boleto', options: ['Passagem / Bilhete', 'Dinheiro', 'Carteira'], correct: 0 },
+                    { q: 'Carro', options: ['Carro', 'Moto', 'Trem'], correct: 0 },
+                    { q: 'Avión', options: ['Navio', 'Avião', 'Helicóptero'], correct: 1 },
+                    { q: 'Maleta', options: ['Mala', 'Mochila', 'Bolsa'], correct: 0 },
+                    { q: 'Tren', options: ['Metrô', 'Trem', 'Ônibus'], correct: 1 },
+                    { q: 'Mapa', options: ['Bússola', 'Guia', 'Mapa'], correct: 2 },
+                    { q: 'Taxi', options: ['Carona', 'Táxi', 'Motorista'], correct: 1 }
+                ]
             },
             fr: {
                 saudaçoes: [
                     { q: 'Bonjour', options: ['Bom dia / Olá', 'Boa noite', 'Obrigado'], correct: 0 },
-                    { q: 'Salut', options: ['Por favor', 'Oi / Tchau', 'De nada'], correct: 1 }
+                    { q: 'Salut', options: ['Por favor', 'Oi / Tchau', 'De nada'], correct: 1 },
+                    { q: 'Au revoir', options: ['Até logo', 'Adeus', 'Oi'], correct: 1 },
+                    { q: 'Merci', options: ['Obrigado', 'Por favor', 'De nada'], correct: 0 },
+                    { q: 'S\'il vous plaît', options: ['De nada', 'Por favor', 'Obrigado'], correct: 1 },
+                    { q: 'Bonsoir', options: ['Boa noite', 'Boa tarde', 'Olá'], correct: 0 },
+                    { q: 'Bienvenue', options: ['Desculpe', 'Bem-vindo', 'Entrada'], correct: 1 },
+                    { q: 'Comment ça va?', options: ['Como você está?', 'Qual seu nome?', 'Onde fica?'], correct: 0 },
+                    { q: 'À bientôt', options: ['Até logo / breve', 'Bom dia', 'Até amanhã'], correct: 0 },
+                    { q: 'Enchanté', options: ['Prazer em conhecer', 'Obrigado por tudo', 'Até breve'], correct: 0 }
                 ],
                 comidas: [
-                    { q: 'Croissant', options: ['Pão', 'Croissant', 'Queijo'], correct: 1 },
-                    { q: 'Eau', options: ['Água', 'Vinho', 'Leite'], correct: 0 }
+                    { q: 'Pain', options: ['Leite', 'Pão', 'Queijo'], correct: 1 },
+                    { q: 'Eau', options: ['Água', 'Vinho', 'Suco'], correct: 0 },
+                    { q: 'Pomme', options: ['Laranja', 'Banana', 'Maçã'], correct: 2 },
+                    { q: 'Lait', options: ['Café', 'Leite', 'Chá'], correct: 1 },
+                    { q: 'Fromage', options: ['Queijo', 'Carne', 'Ovo'], correct: 0 },
+                    { q: 'Viande', options: ['Peixe', 'Carne', 'Frango'], correct: 1 },
+                    { q: 'Riz', options: ['Feijão', 'Arroz', 'Macarrão'], correct: 1 },
+                    { q: 'Oeuf', options: ['Ovo', 'Pão', 'Bolo'], correct: 0 },
+                    { q: 'Poisson', options: ['Peixe', 'Camarão', 'Lagosta'], correct: 0 },
+                    { q: 'Café', options: ['Chá', 'Suco', 'Café'], correct: 2 }
                 ],
-                pronuncia: [{ q: 'Merci', options: ['De nada', 'Por favor', 'Obrigado'], correct: 2 }],
-                palavras: [{ q: 'S\'il vous plaît', options: ['Muito obrigado', 'Por favor', 'Com licença'], correct: 1 }],
-                viagem: [{ q: 'Hôtel', options: ['Aeroporto', 'Hotel', 'Passaporte'], correct: 1 }]
+                pronuncia: [
+                    { q: 'Rouge', options: ['Vermelho', 'Rosa', 'Roxo'], correct: 0 },
+                    { q: 'Bleu', options: ['Verde', 'Azul', 'Amarelo'], correct: 1 },
+                    { q: 'Un', options: ['Dois', 'Três', 'Um'], correct: 2 },
+                    { q: 'Deux', options: ['Dois', 'Quatro', 'Cinco'], correct: 0 },
+                    { q: 'Trois', options: ['Seis', 'Três', 'Sete'], correct: 1 },
+                    { q: 'Chien', options: ['Cachorro', 'Gato', 'Pássaro'], correct: 0 },
+                    { q: 'Chat', options: ['Rato', 'Gato', 'Leão'], correct: 1 },
+                    { q: 'Garçon', options: ['Homem', 'Mulher', 'Menino'], correct: 2 },
+                    { q: 'Fille', options: ['Menina', 'Moço', 'Bebê'], correct: 0 },
+                    { q: 'Maison', options: ['Prédio', 'Casa', 'Escola'], correct: 1 }
+                ],
+                palavras: [
+                    { q: 'Oui', options: ['Não', 'Sim', 'Talvez'], correct: 1 },
+                    { q: 'Non', options: ['Não', 'Sim', 'Nunca'], correct: 0 },
+                    { q: 'Nom', options: ['Nome', 'Sobrenome', 'Idade'], correct: 0 },
+                    { q: 'Ami', options: ['Inimigo', 'Amigo', 'Irmão'], correct: 1 },
+                    { q: 'Famille', options: ['Escola', 'Trabalho', 'Família'], correct: 2 },
+                    { q: 'École', options: ['Escola', 'Hospital', 'Cinema'], correct: 0 },
+                    { q: 'Livre', options: ['Caderno', 'Livro', 'Caneta'], correct: 1 },
+                    { q: 'Ville', options: ['País', 'Estado', 'Cidade'], correct: 2 },
+                    { q: 'Temps', options: ['Tempo / Hora', 'Clima', 'Espaço'], correct: 0 },
+                    { q: 'Amour', options: ['Ódio', 'Amor', 'Paz'], correct: 1 }
+                ],
+                viagem: [
+                    { q: 'Passeport', options: ['Passagem', 'Passaporte', 'Malas'], correct: 1 },
+                    { q: 'Hôtel', options: ['Casa', 'Albergue', 'Hotel'], correct: 2 },
+                    { q: 'Aéroport', options: ['Rodoviária', 'Aeroporto', 'Estação'], correct: 1 },
+                    { q: 'Billet', options: ['Passagem / Bilhete', 'Dinheiro', 'Carteira'], correct: 0 },
+                    { q: 'Voiture', options: ['Carro', 'Moto', 'Trem'], correct: 0 },
+                    { q: 'Avion', options: ['Navio', 'Avião', 'Helicóptero'], correct: 1 },
+                    { q: 'Valise', options: ['Mala', 'Mochila', 'Bolsa'], correct: 0 },
+                    { q: 'Train', options: ['Metrô', 'Trem', 'Ônibus'], correct: 1 },
+                    { q: 'Carte', options: ['Bússola', 'Guia', 'Mapa / Carta'], correct: 2 },
+                    { q: 'Taxi', options: ['Carona', 'Táxi', 'Motorista'], correct: 1 }
+                ]
             },
             ja: {
                 saudaçoes: [
-                    { q: 'こんにちは (Konnichiwa)', options: ['Boa noite', 'Obrigado', 'Olá / Boa tarde'], correct: 2 },
-                    { q: 'ありがとう (Arigatou)', options: ['Obrigado', 'Desculpe', 'Por favor'], correct: 0 }
+                    { q: 'こんにちは (Konnichiwa)', options: ['Boa noite', 'Obrigado', 'Olá'], correct: 2 },
+                    { q: 'ありがとう (Arigatou)', options: ['Obrigado', 'Desculpe', 'Por favor'], correct: 0 },
+                    { q: 'さようなら (Sayounara)', options: ['Até logo', 'Adeus', 'Oi'], correct: 1 },
+                    { q: 'おねがいします (Onegaishimasu)', options: ['Por favor', 'De nada', 'Obrigado'], correct: 0 },
+                    { q: 'すみません (Sumimasen)', options: ['De nada', 'Com licença / Desculpe', 'Olá'], correct: 1 },
+                    { q: 'こんばんは (Konbanwa)', options: ['Boa noite', 'Boa tarde', 'Olá'], correct: 0 },
+                    { q: 'ようこそ (Youkoso)', options: ['Desculpe', 'Bem-vindo', 'Entrada'], correct: 1 },
+                    { q: 'お元気ですか (Ogenki desu ka)', options: ['Como você está?', 'Qual seu nome?', 'Onde fica?'], correct: 0 },
+                    { q: 'じゃあまた (Jaa mata)', options: ['Até logo', 'Bom dia', 'Até amanhã'], correct: 0 },
+                    { q: 'はじめまして (Hajimemashite)', options: ['Prazer em conhecer', 'Obrigado por tudo', 'Até breve'], correct: 0 }
                 ],
                 comidas: [
-                    { q: 'すし (Sushi)', options: ['Arroz', 'Sushi', 'Peixe'], correct: 1 },
-                    { q: 'みず (Mizu)', options: ['Água', 'Chá Verde', 'Leite'], correct: 0 }
+                    { q: 'パン (Pan)', options: ['Leite', 'Pão', 'Queijo'], correct: 1 },
+                    { q: 'みず (Mizu)', options: ['Água', 'Vinho', 'Suco'], correct: 0 },
+                    { q: 'りんご (Ringo)', options: ['Laranja', 'Banana', 'Maçã'], correct: 2 },
+                    { q: '牛乳 (Gyuunyuu)', options: ['Café', 'Leite', 'Chá'], correct: 1 },
+                    { q: 'チーズ (Chiizu)', options: ['Queijo', 'Carne', 'Ovo'], correct: 0 },
+                    { q: '肉 (Niku)', options: ['Peixe', 'Carne', 'Frango'], correct: 1 },
+                    { q: 'ごはん (Gohan)', options: ['Feijão', 'Arroz / Comida', 'Macarrão'], correct: 1 },
+                    { q: '卵 (Tamago)', options: ['Ovo', 'Pão', 'Bolo'], correct: 0 },
+                    { q: '魚 (Sakana)', options: ['Peixe', 'Camarão', 'Lagosta'], correct: 0 },
+                    { q: 'コーヒー (Koohii)', options: ['Chá', 'Suco', 'Café'], correct: 2 }
                 ],
-                pronuncia: [{ q: 'さようなら (Sayounara)', options: ['Olá', 'Adeus / Tchau', 'Bom dia'], correct: 1 }],
-                palavras: [{ q: 'はい (Hai)', options: ['Não', 'Talvez', 'Sim'], correct: 2 }],
-                viagem: [{ q: 'パスポート (Pasupooto)', options: ['Passaporte', 'Avião', 'Bilhete'], correct: 0 }]
+                pronuncia: [
+                    { q: '赤 (Aka)', options: ['Vermelho', 'Rosa', 'Roxo'], correct: 0 },
+                    { q: '青 (Ao)', options: ['Verde', 'Azul', 'Amarelo'], correct: 1 },
+                    { q: 'いち (Ichi)', options: ['Dois', 'Três', 'Um'], correct: 2 },
+                    { q: 'に (Ni)', options: ['Dois', 'Quatro', 'Cinco'], correct: 0 },
+                    { q: 'さん (San)', options: ['Seis', 'Três', 'Sete'], correct: 1 },
+                    { q: '犬 (Inu)', options: ['Cachorro', 'Gato', 'Pássaro'], correct: 0 },
+                    { q: '猫 (Neko)', options: ['Rato', 'Gato', 'Leão'], correct: 1 },
+                    { q: '男の子 (Otokonoko)', options: ['Homem', 'Mulher', 'Menino'], correct: 2 },
+                    { q: '女の子 (Onnanoko)', options: ['Menina', 'Moço', 'Bebê'], correct: 0 },
+                    { q: '家 (Ie)', options: ['Prédio', 'Casa', 'Escola'], correct: 1 }
+                ],
+                palavras: [
+                    { q: 'はい (Hai)', options: ['Não', 'Sim', 'Talvez'], correct: 1 },
+                    { q: 'いいえ (Iie)', options: ['Não', 'Sim', 'Nunca'], correct: 0 },
+                    { q: '名前 (Namae)', options: ['Nome', 'Sobrenome', 'Idade'], correct: 0 },
+                    { q: '友達 (Tomodachi)', options: ['Inimigo', 'Amigo', 'Irmão'], correct: 1 },
+                    { q: '家族 (Kazoku)', options: ['Escola', 'Trabalho', 'Família'], correct: 2 },
+                    { q: '学校 (Gakkou)', options: ['Escola', 'Hospital', 'Cinema'], correct: 0 },
+                    { q: '本 (Hon)', options: ['Caderno', 'Livro', 'Caneta'], correct: 1 },
+                    { q: '町 (Machi)', options: ['País', 'Estado', 'Cidade / Vila'], correct: 2 },
+                    { q: '時間 (Jikan)', options: ['Tempo / Hora', 'Clima', 'Espaço'], correct: 0 },
+                    { q: '愛 (Ai)', options: ['Ódio', 'Amor', 'Paz'], correct: 1 }
+                ],
+                viagem: [
+                    { q: 'パスポート (Pasupooto)', options: ['Passagem', 'Passaporte', 'Malas'], correct: 1 },
+                    { q: 'ホテル (Hoteru)', options: ['Casa', 'Albergue', 'Hotel'], correct: 2 },
+                    { q: '空港 (Kuukou)', options: ['Rodoviária', 'Aeroporto', 'Estação'], correct: 1 },
+                    { q: '切符 (Kippu)', options: ['Passagem / Bilhete', 'Dinheiro', 'Carteira'], correct: 0 },
+                    { q: '車 (Kuruma)', options: ['Carro', 'Moto', 'Trem'], correct: 0 },
+                    { q: '飛行機 (Hikouki)', options: ['Navio', 'Avião', 'Helicóptero'], correct: 1 },
+                    { q: 'スーツケース (Suutsukeesu)', options: ['Mala', 'Mochila', 'Bolsa'], correct: 0 },
+                    { q: '電車 (Densha)', options: ['Metrô', 'Trem', 'Ônibus'], correct: 1 },
+                    { q: '地図 (Chizu)', options: ['Bússola', 'Guia', 'Mapa'], correct: 2 },
+                    { q: 'タクシー (Takushii)', options: ['Carona', 'Táxi', 'Motorista'], correct: 1 }
+                ]
             }
         };
 
-        // --- SISTEMA DE AUDIO SINTETIZADO (NATIVO SEM ARQUIVOS EXTERNOS) ---
+        // --- SISTEMA DE GERAÇÃO VETORIAL DO AVATAR (SVG DISSOCIADO) ---
+        function generateAvatarSVG(config) {
+            const cfg = config || defaultAvatar;
+            let hairSVG = '';
+            if (cfg.hair === 'short') {
+                hairSVG = `<path d="M30 40 Q50 10 70 40 Q50 30 30 40" fill="${cfg.hairColor}"/>`;
+            } else if (cfg.hair === 'long') {
+                hairSVG = `<path d="M25 40 Q50 5 75 40 Q85 80 75 80 Q50 35 25 80 Q15 80 25 40" fill="${cfg.hairColor}"/>`;
+            } else if (cfg.hair === 'undercut') {
+                hairSVG = `<path d="M33 35 L50 15 L67 35 Z" fill="${cfg.hairColor}"/><circle cx="50" cy="22" r="6" fill="${cfg.hairColor}"/>`;
+            }
+
+            let accSVG = '';
+            if (cfg.accessory === 'glasses') {
+                accSVG = `
+                    <rect x="33" y="44" width="13" height="9" rx="2" fill="none" stroke="#222" stroke-width="2.5"/>
+                    <rect x="54" y="44" width="13" height="9" rx="2" fill="none" stroke="#222" stroke-width="2.5"/>
+                    <line x1="46" y1="48" x2="54" y2="48" stroke="#222" stroke-width="2.5"/>
+                `;
+            } else if (cfg.accessory === 'hat') {
+                accSVG = `<path d="M28 34 Q50 15 72 34 Z" fill="#ff4b4b"/><path d="M25 34 L75 30 L70 35 L28 35 Z" fill="#cc3333"/>`;
+            }
+
+            return `
+                <svg viewBox="0 0 100 100" class="w-full h-full">
+                    <circle cx="50" cy="50" r="48" fill="${cfg.bg}"/>
+                    <path d="M20 95 Q50 65 80 95 Z" fill="${cfg.clothing}"/>
+                    <circle cx="50" cy="50" r="23" fill="${cfg.skin}"/>
+                    <circle cx="43" cy="47" r="2.5" fill="#333"/>
+                    <circle cx="57" cy="47" r="2.5" fill="#333"/>
+                    <path d="M44 57 Q50 63 56 57" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    ${hairSVG}
+                    ${accSVG}
+                </svg>
+            `;
+        }
+
+        // --- SISTEMA DE AUDIO NATIVO ---
         function playSound(type) {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
+            osc.connect(gain); gain.connect(ctx.destination);
 
             if (type === 'correct') {
                 osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                osc.start(); osc.stop(ctx.currentTime + 0.4);
+                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc.start(); osc.stop(ctx.currentTime + 0.35);
             } else if (type === 'wrong') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                osc.start(); osc.stop(ctx.currentTime + 0.3);
+                osc.frequency.setValueAtTime(140, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(90, ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                osc.start(); osc.stop(ctx.currentTime + 0.25);
             }
         }
 
-        // --- TEXT TO SPEECH SOTAQUE DINÂMICO ---
         function speakText(text) {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
+            const ut = new SpeechSynthesisUtterance(text);
             const course = userData.currentCourse || 'en';
-            
-            if (course === 'en') utterance.lang = 'en-US';
-            else if (course === 'es') utterance.lang = 'es-ES';
-            else if (course === 'fr') utterance.lang = 'fr-FR';
-            else if (course === 'ja') utterance.lang = 'ja-JP';
-            
-            window.speechSynthesis.speak(utterance);
+            if (course === 'en') ut.lang = 'en-US';
+            else if (course === 'es') ut.lang = 'es-ES';
+            else if (course === 'fr') ut.lang = 'fr-FR';
+            else if (course === 'ja') ut.lang = 'ja-JP';
+            window.speechSynthesis.speak(ut);
         }
 
         function speakCurrentQuestion() {
-            if (currentLessonData && currentLessonData[currentStep]) {
-                speakText(currentLessonData[currentStep].q);
-            }
+            if (currentLessonData[currentStep]) speakText(currentLessonData[currentStep].q);
         }
 
-        // Auth Listeners
+        // --- AUTENTICAÇÃO ---
         document.getElementById('btn-login-email').addEventListener('click', () => {
             auth.signInWithEmailAndPassword(document.getElementById('email-input').value, document.getElementById('password-input').value).catch(err => alert(err.message));
         });
@@ -315,7 +576,7 @@
         document.getElementById('btn-register-email').addEventListener('click', () => {
             const email = document.getElementById('email-input').value;
             auth.createUserWithEmailAndPassword(email, document.getElementById('password-input').value).then((cred) => {
-                db.ref('users/' + cred.user.uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lingots: 50, avatar: "🦉", currentCourse: "en" });
+                db.ref('users/' + cred.user.uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en" });
             }).catch(err => alert(err.message));
         });
 
@@ -323,7 +584,7 @@
             auth.signInWithPopup(googleProvider).then((cred) => {
                 db.ref('users/' + cred.user.uid).once('value').then((snapshot) => {
                     if (!snapshot.exists()) {
-                        db.ref('users/' + cred.user.uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lingots: 50, avatar: "🦊", currentCourse: "en" });
+                        db.ref('users/' + cred.user.uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lastLessonDate: "", lingots: 50, avatar: defaultAvatar, currentCourse: "en" });
                     }
                 });
             }).catch(err => alert(err.message));
@@ -344,88 +605,175 @@
             }
         });
 
+        // --- MANIPULAÇÃO E ATUALIZAÇÃO DOS DADOS ---
         function syncData() {
             db.ref('users/' + currentUser.uid).on('value', (snapshot) => {
                 if (!snapshot.exists()) return;
                 userData = snapshot.val();
                 
+                // Validação Inteligente da Ofensiva (Reseta se pulou mais de um dia completo)
+                if (userData.lastLessonDate) {
+                    const hoje = new Date().toDateString();
+                    const ontem = new Date(Date.now() - 86400000).toDateString();
+                    if (userData.lastLessonDate !== hoje && userData.lastLessonDate !== ontem) {
+                        db.ref('users/' + currentUser.uid).update({ streak: 0 });
+                    }
+                }
+
+                // Renderiza Elementos Estáticos
                 document.getElementById('user-streak').innerText = userData.streak || 0;
                 document.getElementById('user-lingots').innerText = userData.lingots || 50;
                 document.getElementById('profile-name-input').value = userData.displayName || "Estudante";
                 document.getElementById('profile-email').innerText = userData.email;
                 document.getElementById('profile-xp').innerText = userData.xp || 0;
                 document.getElementById('profile-level').innerText = Math.floor((userData.xp || 0) / 100) + 1;
-                document.getElementById('profile-avatar-display').innerText = userData.avatar || "🦉";
-                document.getElementById('nav-avatar').innerText = userData.avatar || "🦉";
                 document.getElementById('course-selector').value = userData.currentCourse || "en";
                 
-                loadFriendsRanking();
+                // Renderização Dinâmica de Avatares
+                const currentAvatarHTML = generateAvatarSVG(userData.avatar);
+                document.getElementById('profile-avatar-render').innerHTML = currentAvatarHTML;
+                document.getElementById('nav-avatar-container').innerHTML = currentAvatarHTML;
+
+                // Ativa a animação de fogo se o streak estiver quente
+                if ((userData.streak || 0) > 0) {
+                    document.getElementById('streak-icon').classList.add('animate-fire', 'inline-block');
+                } else {
+                    document.getElementById('streak-icon').classList.remove('animate-fire');
+                }
+
+                // Carrega os módulos sociais bilaterais
+                loadIncomingRequests();
+                loadSocialRanking();
             });
         }
 
-        document.getElementById('profile-name-input').addEventListener('change', (e) => { db.ref('users/' + currentUser.uid).update({ displayName: e.target.value }); });
-        document.getElementById('avatar-selector').addEventListener('change', (e) => { db.ref('users/' + currentUser.uid).update({ avatar: e.target.value }); });
-        document.getElementById('course-selector').addEventListener('change', (e) => { db.ref('users/' + currentUser.uid).update({ currentCourse: e.target.value }); });
+        // Modificadores de Perfil
+        function toggleEditProfile() {
+            const input = document.getElementById('profile-name-input');
+            const btn = document.getElementById('btn-edit-profile');
+            if (input.disabled) {
+                input.disabled = false; input.focus(); btn.innerText = "Salvar";
+            } else {
+                input.disabled = true; btn.innerText = "Alterar Nome";
+                db.ref('users/' + currentUser.uid).update({ displayName: input.value });
+            }
+        }
 
-        // --- INTERFACE DE LIÇÃO ---
+        function openAvatarBuilder() { document.getElementById('avatar-builder-panel').classList.remove('hidden'); fillAvatarInputs(); }
+        function closeAvatarBuilder() { document.getElementById('avatar-builder-panel').classList.add('hidden'); }
+        
+        function fillAvatarInputs() {
+            const av = userData.avatar || defaultAvatar;
+            document.getElementById('av-skin').value = av.skin;
+            document.getElementById('av-hair').value = av.hair;
+            document.getElementById('av-hair-color').value = av.hairColor;
+            document.getElementById('av-clothing').value = av.clothing;
+            document.getElementById('av-accessory').value = av.accessory;
+            document.getElementById('av-bg').value = av.bg;
+        }
+
+        function previewAvatar() {
+            const previewConfig = {
+                skin: document.getElementById('av-skin').value,
+                hair: document.getElementById('av-hair').value,
+                hairColor: document.getElementById('av-hair-color').value,
+                clothing: document.getElementById('av-clothing').value,
+                accessory: document.getElementById('av-accessory').value,
+                bg: document.getElementById('av-bg').value
+            };
+            document.getElementById('profile-avatar-render').innerHTML = generateAvatarSVG(previewConfig);
+        }
+
+        function saveAvatar() {
+            const newConfig = {
+                skin: document.getElementById('av-skin').value,
+                hair: document.getElementById('av-hair').value,
+                hairColor: document.getElementById('av-hair-color').value,
+                clothing: document.getElementById('av-clothing').value,
+                accessory: document.getElementById('av-accessory').value,
+                bg: document.getElementById('av-bg').value
+            };
+            db.ref('users/' + currentUser.uid + '/avatar').set(newConfig).then(() => closeAvatarBuilder());
+        }
+
+        document.getElementById('course-selector').addEventListener('change', (e) => {
+            db.ref('users/' + currentUser.uid).update({ currentCourse: e.target.value });
+        });
+
+        // --- SISTEMA DE LIÇÃO COMPLETA (10 INTERAÇÕES) ---
         window.startLesson = function(skill) {
             const course = userData.currentCourse || 'en';
-            currentLessonData = lessonsDB[course][skill];
-            currentStep = 0;
-            isAnswerChecked = false;
+            currentLessonData = lessonsDB[course][skill]; 
+            currentStep = 0; isAnswerChecked = false;
             document.getElementById('lesson-modal').classList.remove('hidden');
-            document.getElementById('lesson-main-content').classList.remove('hidden');
             renderStep();
         };
 
-        window.closeLesson = function() {
-            document.getElementById('lesson-modal').classList.add('hidden');
-            document.getElementById('feedback-panel').classList.add('hidden');
-        };
+        window.closeLesson = function() { document.getElementById('lesson-modal').classList.add('hidden'); };
 
         function renderStep() {
             isAnswerChecked = false;
             document.getElementById('feedback-panel').classList.add('hidden');
             document.getElementById('lesson-submit').innerText = "Verificar";
             document.getElementById('lesson-submit').className = "w-full max-w-md mx-auto duo-btn-blue text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider";
+            document.getElementById('lesson-counter').innerText = `${currentStep + 1}/10`;
+            document.getElementById('lesson-progress').style.width = `${(currentStep / 10) * 100}%`;
 
-            if (currentStep >= currentLessonData.length) {
-                document.getElementById('lesson-main-content').classList.add('hidden');
-                document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center";
-                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-2">🎉 Vitória!</h3><p>Liga Concluída! Ganhou +10 XP e +2 Lingots.</p>`;
+            if (currentStep >= 10) {
+                // Tela Final de Lição Concluída Nativa com Animação
+                document.getElementById('lesson-progress').style.width = '100%';
+                document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center animate-bounce";
+                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Ofensiva Suprema!</h3><p>Lição Concluída com Sucesso! +10 XP obtidos.</p>`;
                 document.getElementById('feedback-panel').classList.remove('hidden');
                 playSound('correct');
-                
-                document.getElementById('lesson-submit').innerText = "Finalizar";
+
+                document.getElementById('lesson-submit').innerText = "Fechar e Computar";
                 document.getElementById('lesson-submit').onclick = function() {
-                    db.ref('users/' + currentUser.uid).update({ xp: (userData.xp || 0) + 10, lingots: (userData.lingots || 50) + 2, streak: (userData.streak || 0) + 1 });
+                    const hoje = new Date().toDateString();
+                    let novaOfensiva = userData.streak || 0;
+                    if (userData.lastLessonDate !== hoje) { novaOfensiva++; }
+
+                    // Atualiza Perfil
+                    db.ref('users/' + currentUser.uid).update({
+                        xp: (userData.xp || 0) + 10,
+                        streak: novaOfensiva,
+                        lastLessonDate: hoje
+                    });
+
+                    // Cria um evento público para os amigos reagirem
+                    db.ref('public_feed').push({
+                        uid: currentUser.uid,
+                        userName: userData.displayName || "Estudante",
+                        avatar: userData.avatar || defaultAvatar,
+                        msg: `completou uma lição impecável e alcançou ${novaOfensiva} dias de Ofensiva! 🚀`,
+                        timestamp: Date.now(),
+                        likes: 0
+                    });
+
                     closeLesson();
-                    document.getElementById('lesson-submit').onclick = checkAnswer;
+                    document.getElementById('lesson-submit').onclick = checkAnswer; // restaura trigger original
                 };
                 return;
             }
 
             const stepData = currentLessonData[currentStep];
-            document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
             document.getElementById('lesson-question').innerText = stepData.q;
             speakText(stepData.q);
 
             const optionsContainer = document.getElementById('lesson-options');
             optionsContainer.innerHTML = '';
-            stepData.options.forEach((opt, index) => {
-                optionsContainer.innerHTML += `<button onclick="selectOption(${index}, '${opt}')" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] bg-white" data-index="${index}">${opt}</button>`;
+            stepData.options.forEach((opt, idx) => {
+                optionsContainer.innerHTML += `<button onclick="selectOption(${idx}, '${opt}')" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] bg-white" data-index="${idx}">${opt}</button>`;
             });
             selectedOptionIndex = null;
         }
 
-        window.selectOption = function(index, text) {
+        window.selectOption = function(idx, txt) {
             if (isAnswerChecked) return;
-            speakText(text);
-
-            document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]'); btn.classList.add('border-[#e5e5e5]'); });
-            const selectedBtn = document.querySelector(`[data-index="${index}"]`);
-            selectedBtn.classList.add('border-[#1cb0f6]', 'bg-[#ddf4ff]');
-            selectedOptionIndex = index;
+            speakText(txt);
+            document.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]'); b.classList.add('border-[#e5e5e5]'); });
+            document.querySelector(`[data-index="${idx}"]`).classList.add('border-[#1cb0f6]', 'bg-[#ddf4ff]');
+            selectedOptionIndex = idx;
         };
 
         window.checkAnswer = function() {
@@ -435,102 +783,194 @@
             const stepData = currentLessonData[currentStep];
             isAnswerChecked = true;
             const panel = document.getElementById('feedback-panel');
-            
+
             if (selectedOptionIndex === stepData.correct) {
                 playSound('correct');
                 panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-green-100 text-green-700";
-                document.getElementById('feedback-text').innerText = "✨ Resposta correta! Parabéns.";
+                document.getElementById('feedback-text').innerText = "✨ Resposta correta!";
                 document.getElementById('lesson-submit').innerText = "Continuar";
                 document.getElementById('lesson-submit').className = "w-full max-w-md mx-auto duo-btn-green text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider";
             } else {
                 playSound('wrong');
                 panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-red-100 text-red-700";
-                document.getElementById('feedback-text').innerText = `😢 Errado! Resposta ideal: ${stepData.options[stepData.correct]}`;
+                document.getElementById('feedback-text').innerText = `😢 Errado. Resposta correta: ${stepData.options[stepData.correct]}`;
                 document.getElementById('lesson-submit').innerText = "Entendi";
             }
             panel.classList.remove('hidden');
         };
 
-        // --- SISTEMA DE RANKING & LIGA REAL DE AMIGOS ---
-        window.addFriend = function() {
+        // --- SISTEMA DE AMIGOS E SOLICITAÇÕES BILATERAIS REAIS ---
+        window.sendFriendRequest = function() {
             const targetEmail = document.getElementById('friend-search-input').value.trim();
-            const msgEl = document.getElementById('friend-status-msg');
+            const msgEl = document.getElementById('social-status-msg');
             if (!targetEmail) return;
 
-            db.ref('users').orderByChild('email').equalTo(targetEmail).once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const friendUid = Object.keys(snapshot.val())[0];
-                    if (friendUid === currentUser.uid) return msgEl.innerText = "Você já está no topo!";
-                    db.ref('users/' + currentUser.uid + '/friends/' + friendUid).set(true);
-                    msgEl.innerText = "Adicionado à sua liga!";
-                    document.getElementById('friend-search-input').value = "";
+            msgEl.innerText = "Processando busca...";
+            db.ref('users').orderByChild('email').equalTo(targetEmail).once('value', (snap) => {
+                if (snap.exists()) {
+                    const targetUid = Object.keys(snap.val())[0];
+                    if (targetUid === currentUser.uid) { msgEl.innerText = "Você não pode se convidar!"; return; }
+
+                    // Envia solicitação para o nó de destino do amigo
+                    db.ref(`users/${targetUid}/friend_requests/${currentUser.uid}`).set({
+                        fromName: userData.displayName || "Um usuário",
+                        fromEmail: userData.email
+                    }).then(() => {
+                        msgEl.innerText = "Solicitação enviada! Diga para ele aceitar nas notificações.";
+                        document.getElementById('friend-search-input').value = "";
+                    });
                 } else {
-                    msgEl.innerText = "E-mail não localizado.";
+                    msgEl.innerText = "E-mail não cadastrado no Firebase.";
                 }
             });
         };
 
-        window.sendGift = function(friendUid) {
-            if ((userData.lingots || 0) < 5) return alert("Lingots insuficientes!");
-            
-            db.ref('users/' + currentUser.uid).update({ lingots: userData.lingots - 5 });
-            
-            db.ref('users/' + friendUid + '/lingots').transaction((currentLingots) => {
-                return (currentLingots || 0) + 5;
+        function loadIncomingRequests() {
+            const box = document.getElementById('notifications-box');
+            const listContainer = document.getElementById('incoming-requests-list');
+            const badge = document.getElementById('notif-badge');
+
+            db.ref(`users/${currentUser.uid}/friend_requests`).on('value', (snap) => {
+                listContainer.innerHTML = '';
+                if (snap.exists()) {
+                    const requests = snap.val();
+                    const totalNotifs = Object.keys(requests).length;
+                    
+                    badge.innerText = totalNotifs;
+                    badge.classList.remove('hidden');
+                    box.classList.remove('hidden');
+
+                    Object.keys(requests).forEach(senderUid => {
+                        const req = requests[senderUid];
+                        listContainer.innerHTML += `
+                            <div class="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-amber-200">
+                                <div class="text-xs text-amber-900"><b class="text-sm">${req.fromName}</b> (${req.fromEmail}) quer ser seu amigo!</div>
+                                <div class="flex gap-1">
+                                    <button onclick="acceptFriend('${senderUid}')" class="bg-[#58cc02] text-white text-xs px-2.5 py-1 font-bold rounded-lg uppercase shadow-sm">Aceitar</button>
+                                    <button onclick="rejectFriend('${senderUid}')" class="bg-gray-200 text-gray-600 text-xs px-2.5 py-1 font-bold rounded-lg uppercase">Recusar</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    badge.classList.add('hidden');
+                    box.classList.add('hidden');
+                }
             });
-            alert("Presente de 5 💎 enviado!");
+        }
+
+        window.acceptFriend = function(senderUid) {
+            // Vincula no nó de ambos para criar a amizade bilateral real
+            db.ref(`users/${currentUser.uid}/friends/${senderUid}`).set(true);
+            db.ref(`users/${senderUid}/friends/${currentUser.uid}`).set(true);
+            // Deleta o pedido aceito
+            db.ref(`users/${currentUser.uid}/friend_requests/${senderUid}`).remove();
         };
 
-        function loadFriendsRanking() {
-            const container = document.getElementById('friends-list');
-            container.innerHTML = '';
-            
-            let listToRender = [];
-            listToRender.push({ uid: currentUser.uid, avatar: userData.avatar, displayName: (userData.displayName || "Você"), xp: (userData.xp || 0), email: userData.email, isMe: true });
+        window.rejectFriend = function(senderUid) {
+            db.ref(`users/${currentUser.uid}/friend_requests/${senderUid}`).remove();
+        };
+
+        // --- RENDERIZADOR DO RANKING DA LIGA ---
+        function loadSocialRanking() {
+            let rankingData = [];
+            // Inclui o próprio usuário
+            rankingData.push({ uid: currentUser.uid, avatar: userData.avatar, name: (userData.displayName || "Você"), xp: (userData.xp || 0), isMe: true });
 
             if (userData.friends) {
                 const promises = Object.keys(userData.friends).map(fUid => {
                     return db.ref('users/' + fUid).once('value').then(snap => {
                         if (snap.exists()) {
-                            const fData = snap.val();
-                            listToRender.push({ uid: fUid, avatar: fData.avatar, displayName: fData.displayName, xp: fData.xp || 0, email: fData.email, isMe: false });
+                            const f = snap.val();
+                            rankingData.push({ uid: fUid, avatar: f.avatar, name: f.displayName || "Estudante", xp: f.xp || 0, isMe: false });
                         }
                     });
                 });
-
-                Promise.all(promises).then(() => renderRanking(listToRender));
+                Promise.all(promises).then(() => renderSocialRankingHTML(rankingData));
             } else {
-                renderRanking(listToRender);
+                renderSocialRankingHTML(rankingData);
             }
         }
 
-        function renderRanking(list) {
+        function renderSocialRankingHTML(list) {
             list.sort((a, b) => b.xp - a.xp);
-            
-            const container = document.getElementById('friends-list');
+            const container = document.getElementById('social-ranking-list');
             container.innerHTML = '';
 
-            list.forEach((user, index) => {
-                const positionStyle = index === 0 ? 'text-amber-500 text-xl' : index === 1 ? 'text-gray-400 text-lg' : index === 2 ? 'text-amber-700 text-md' : 'text-gray-400';
+            list.forEach((u, i) => {
+                const posColor = i === 0 ? 'text-amber-500 text-xl' : i === 1 ? 'text-slate-400 text-lg' : 'text-amber-800';
                 container.innerHTML += `
-                    <div class="duo-card rounded-2xl p-4 flex items-center justify-between ${user.isMe ? 'bg-blue-50 border-blue-300' : 'bg-white'}">
+                    <div class="duo-card rounded-2xl p-4 flex items-center justify-between ${u.isMe ? 'bg-blue-50 border-blue-300' : 'bg-white'}">
                         <div class="flex items-center gap-4">
-                            <span class="font-extrabold w-6 text-center ${positionStyle}">${index + 1}</span>
-                            <span class="text-3xl bg-gray-100 p-2 rounded-full">${user.avatar || '🦉'}</span>
-                            <div>
-                                <h4 class="font-extrabold text-base">${user.displayName || 'Estudante'} ${user.isMe ? '(Você)' : ''}</h4>
-                                <p class="text-xs text-gray-400 font-bold">${user.email}</p>
-                            </div>
+                            <span class="font-extrabold w-6 text-center ${posColor}">${i + 1}</span>
+                            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">${generateAvatarSVG(u.avatar)}</div>
+                            <h4 class="font-extrabold text-sm">${u.name} ${u.isMe ? '(Você)' : ''}</h4>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right font-extrabold text-sm text-orange-500">⚡ ${user.xp} XP</div>
-                            ${!user.isMe ? `<button onclick="sendGift('${user.uid}')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-2 py-1 rounded-xl text-xs font-bold transition-all">🎁 Dar 5💎</button>` : ''}
-                        </div>
+                        <div class="font-extrabold text-sm text-orange-500">⚡ ${u.xp} XP</div>
                     </div>
                 `;
             });
+            loadSocialFeed();
         }
 
+        // --- FEED INTERATIVO COM REAÇÕES E COMENTÁRIOS VIA STRING ---
+        function loadSocialFeed() {
+            db.ref('public_feed').limitToLast(10).on('value', (snap) => {
+                const container = document.getElementById('social-feed-container');
+                container.innerHTML = '';
+                if (!snap.exists()) {
+                    container.innerHTML = `<p class="text-gray-400 text-center font-bold text-xs py-4">Nenhuma atividade recente na liga.</p>`;
+                    return;
+                }
+
+                const feeds = snap.val();
+                // Renderiza em ordem inversa (mais recente no topo)
+                Object.keys(feeds).reverse().forEach(feedId => {
+                    const f = feeds[feedId];
+                    
+                    // Render de Comentários salvos no Firebase
+                    let commentsHTML = '';
+                    if (f.comments) {
+                        Object.keys(f.comments).forEach(cId => {
+                            const c = f.comments[cId];
+                            commentsHTML += `<div class="bg-gray-50 p-2 rounded-xl text-xs mt-1 border border-gray-100"><b>${c.author}:</b> ${c.text}</div>`;
+                        });
+                    }
+
+                    container.innerHTML += `
+                        <div class="duo-card rounded-2xl p-4 bg-white border border-gray-200 space-y-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200">${generateAvatarSVG(f.avatar)}</div>
+                                <div class="text-xs text-gray-600"><b class="text-sm text-gray-800">${f.userName}</b> ${f.msg}</div>
+                            </div>
+                            <div class="flex gap-2 items-center text-xs">
+                                <button onclick="likeFeedItem('${feedId}')" class="bg-red-50 hover:bg-red-100 text-red-500 px-3 py-1.5 rounded-xl font-bold">❤️ Curtir (${f.likes || 0})</button>
+                                <input id="reply-input-${feedId}" type="text" placeholder="Responda ou parabenize..." class="flex-1 bg-gray-100 rounded-xl px-3 py-1.5 border border-transparent focus:outline-none focus:bg-white focus:border-[#1cb0f6] font-bold">
+                                <button onclick="commentFeedItem('${feedId}')" class="bg-[#1cb0f6] text-white px-3 py-1.5 rounded-xl font-bold">Enviar</button>
+                            </div>
+                            <div class="space-y-1 pl-2 border-l-2 border-gray-200">${commentsHTML}</div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.likeFeedItem = function(feedId) {
+            db.ref(`public_feed/${feedId}/likes`).transaction((currentLikes) => (currentLikes || 0) + 1);
+        };
+
+        window.commentFeedItem = function(feedId) {
+            const input = document.getElementById(`reply-input-${feedId}`);
+            const commentText = input.value.trim();
+            if (!commentText) return;
+
+            db.ref(`public_feed/${feedId}/comments`).push({
+                author: userData.displayName || "Estudante",
+                text: commentText
+            }).then(() => { input.value = ''; });
+        };
+
+        // Gerenciador de Abas Global
         window.switchTab = function(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
