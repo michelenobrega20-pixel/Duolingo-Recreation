@@ -330,7 +330,7 @@
         </main>
     </div>
 
-    <script>
+<script>
         // Configuração de credenciais padrão do seu ecossistema Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD3gIAvakHjgEJjZyfvGQaDO83QiW982eo",
@@ -361,22 +361,22 @@
         const lessonsDB = {
             en: {
                 saudaçoes: [
-                    { q: 'Hello', type: 'escolha', options: ['Olá', 'Carro', 'Noite'], correct: 0 },
-                    { q: 'Good morning significa "Bom dia".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
-                    { q: 'Goodbye', type: 'escolha', options: ['Por favor', 'Obrigado', 'Adeus'], correct: 2 },
-                    { q: 'Complete a lacuna: Thank __', type: 'lacuna', options: ['you', 'me', 'hi'], correct: 0 },
-                    { q: 'Please', type: 'escolha', options: ['Maçã', 'Por favor', 'Sim'], correct: 1 }
+                    { q: 'Hello', type: 'Escolha Múltipla', options: ['Olá', 'Carro', 'Noite'], correct: 0 },
+                    { q: 'Good morning significa "Bom dia".', type: 'Verdadeiro ou Falso', options: ['Verdadeiro', 'Falso'], correct: 0 },
+                    { q: 'Goodbye', type: 'Escolha Múltipla', options: ['Por favor', 'Obrigado', 'Adeus'], correct: 2 },
+                    { q: 'Complete a lacuna: Thank __', type: 'Preencher Lacuna', options: ['you', 'me', 'hi'], correct: 0 },
+                    { q: 'Please', type: 'Escolha Múltipla', options: ['Maçã', 'Por favor', 'Sim'], correct: 1 }
                 ],
                 familia: [
-                    { q: 'Mother', type: 'escolha', options: ['Pai', 'Mãe', 'Irmão'], correct: 1 },
-                    { q: 'Father significa "Tio".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 }
+                    { q: 'Mother', type: 'Escolha Múltipla', options: ['Pai', 'Mãe', 'Irmão'], correct: 1 },
+                    { q: 'Father significa "Tio".', type: 'Verdadeiro ou Falso', options: ['Verdadeiro', 'Falso'], correct: 1 }
                 ]
             },
             es: {
                 saludos: [
-                    { q: 'Hola', type: 'escolha', options: ['Tchau', 'Olá', 'Obrigado'], correct: 1 },
-                    { q: 'Buenos días significa "Boa noite".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
-                    { q: 'Gracias', type: 'escolha', options: ['Por favor', 'De nada', 'Obrigado'], correct: 2 }
+                    { q: 'Hola', type: 'Escolha Múltipla', options: ['Tchau', 'Olá', 'Obrigado'], correct: 1 },
+                    { q: 'Buenos días significa "Boa noite".', type: 'Verdadeiro ou Falso', options: ['Verdadeiro', 'Falso'], correct: 1 },
+                    { q: 'Gracias', type: 'Escolha Múltipla', options: ['Por favor', 'De nada', 'Obrigado'], correct: 2 }
                 ]
             }
         };
@@ -393,19 +393,13 @@
 
         function sanitizeEmail(email) { return email.toLowerCase().trim().replace(/\./g, ','); }
 
-        // --- MOTOR DE VOZ TEXT-TO-SPEECH COM LOCALIZAÇÃO DE SOTAQUE ---
+        // --- MOTOR DE VOZ (TEXT-TO-SPEECH) ---
         function speak(text, courseKey) {
             if (!window.speechSynthesis) return;
             window.speechSynthesis.cancel();
-
-            const langMap = { en: 'en-US', es: 'es-MX', ja: 'ja-JP', ko: 'ko-KR', matematica: 'pt-BR', xadrez: 'pt-BR' };
+            const langMap = { en: 'en-US', es: 'es-MX', ja: 'ja-JP', ko: 'ko-KR' };
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = langMap[courseKey] || 'pt-BR';
-            
-            const voices = window.speechSynthesis.getVoices();
-            const matchingVoice = voices.find(v => v.lang.startsWith(utterance.lang));
-            if (matchingVoice) utterance.voice = matchingVoice;
-
             window.speechSynthesis.speak(utterance);
         }
 
@@ -415,7 +409,7 @@
             }
         }
 
-        // --- SISTEMA INTERNO DE GERENCIAMENTO DE MANUTENÇÃO ---
+        // --- SISTEMA DE MANUTENÇÃO GLOBAL ---
         db.ref('system/maintenance').on('value', (snapshot) => {
             globalMaintenanceMode = snapshot.val() || false;
             applyMaintenanceSecurity();
@@ -424,7 +418,6 @@
         function applyMaintenanceSecurity() {
             const screen = document.getElementById('maintenance-screen');
             if (globalMaintenanceMode) {
-                // Se for você logado, ignora o bloqueio para permitir manutenção no painel
                 if (currentUser && currentUser.email === 'michele.nobrega20@gmail.com') {
                     screen.classList.add('hidden');
                 } else {
@@ -452,413 +445,283 @@
             }
         }
 
-        window.toggleGlobalMaintenance = function() {
-            db.ref('system/maintenance').set(!globalMaintenanceMode);
-        };
-
-        // --- AVATAR GRAPHICS GENERATOR ---
-        function generateAvatarSVG(config, subscriptionType = 'free') {
-            const cfg = config || defaultAvatar;
-            let hairSVG = '';
-            if (cfg.hair === 'short') hairSVG = `<path d="M30 40 Q50 10 70 40 Q50 30 30 40" fill="${cfg.hairColor}"/>`;
-            else if (cfg.hair === 'long') hairSVG = `<path d="M25 40 Q50 5 75 40 Q85 80 75 80 Q50 35 25 80 Q15 80 25 40" fill="${cfg.hairColor}"/>`;
-            else if (cfg.hair === 'undercut') hairSVG = `<path d="M33 35 L50 15 L67 35 Z" fill="${cfg.hairColor}"/>`;
-
-            let accSVG = '';
-            if (cfg.accessory === 'glasses') accSVG = `<rect x="33" y="44" width="13" height="9" rx="2" fill="none" stroke="#222" stroke-width="2.5"/><rect x="54" y="44" width="13" height="9" rx="2" fill="none" stroke="#222" stroke-width="2.5"/><line x1="46" y1="48" x2="54" y2="48" stroke="#222" stroke-width="2.5"/>`;
-            else if (cfg.accessory === 'hat') accSVG = `<path d="M28 34 Q50 15 72 34 Z" fill="#ff4b4b"/>`;
-
-            const auraClass = subscriptionType === 'meta' ? 'class="meta-aura"' : subscriptionType === 'super' ? 'style="filter: drop-shadow(0 0 6px #a855f7)"' : '';
-
-            return `
-                <svg viewBox="0 0 100 100" ${auraClass} class="w-full h-full">
-                    <circle cx="50" cy="50" r="48" fill="${cfg.bg}"/>
-                    <path d="M20 95 Q50 65 80 95 Z" fill="${cfg.clothing}"/>
-                    <circle cx="50" cy="50" r="23" fill="${cfg.skin}"/>
-                    <circle cx="43" cy="47" r="2.5" fill="#333"/>
-                    <circle cx="57" cy="47" r="2.5" fill="#333"/>
-                    <path d="M44 57 Q50 63 56 57" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                    ${hairSVG} ${accSVG}
-                </svg>
-            `;
-        }
-
-        function playSound(type) {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator(); const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            if (type === 'correct') {
-                osc.frequency.setValueAtTime(523.25, ctx.currentTime); osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.3);
-            } else {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, ctx.currentTime);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.2);
-            }
-        }
-
-        // --- SISTEMA DE AUTENTICAÇÃO ---
-        document.getElementById('btn-login-email').addEventListener('click', () => {
-            auth.signInWithEmailAndPassword(document.getElementById('email-input').value, document.getElementById('password-input').value).catch(err => alert(err.message));
-        });
-
-        document.getElementById('btn-register-email').addEventListener('click', () => {
-            const email = document.getElementById('email-input').value;
-            auth.createUserWithEmailAndPassword(email, document.getElementById('password-input').value).then((cred) => {
-                const uid = cred.user.uid;
-                db.ref('users/' + uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lastLessonDate: "", lingots: 50, energy: 5, avatar: defaultAvatar, currentCourse: "en", subscription: "free", banned: false });
-                db.ref('emails/' + sanitizeEmail(email)).set(uid);
-            }).catch(err => alert(err.message));
-        });
-
-        document.getElementById('btn-login-google').addEventListener('click', () => {
-            auth.signInWithPopup(googleProvider).then((cred) => {
-                const uid = cred.user.uid;
-                db.ref('users/' + uid).once('value').then((snapshot) => {
-                    if (!snapshot.exists()) {
-                        db.ref('users/' + uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lastLessonDate: "", lingots: 50, energy: 5, avatar: defaultAvatar, currentCourse: "en", subscription: "free", banned: false });
-                    }
-                    db.ref('emails/' + sanitizeEmail(cred.user.email)).set(uid);
-                });
-            }).catch(err => alert(err.message));
-        });
-
-        document.getElementById('btn-logout').addEventListener('click', () => auth.signOut());
-
+        // --- CONTROLE DE SESSÃO DO USUÁRIO (FIREBASE AUTH) ---
         auth.onAuthStateChanged((user) => {
-            if (user) { 
-                currentUser = user; 
-                document.getElementById('auth-screen').classList.add('hidden'); 
-                document.getElementById('main-screen').classList.remove('hidden'); 
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-screen').classList.remove('hidden');
                 
-                // Valida na hora se o e-mail logado é o seu master para injetar o painel de admin
-                if (currentUser.email === 'michele.nobrega20@gmail.com') {
+                if (user.email === 'michele.nobrega20@gmail.com') {
                     document.getElementById('nav-admin-btn').classList.remove('hidden');
-                } else {
-                    document.getElementById('nav-admin-btn').classList.add('hidden');
                 }
-                
-                applyMaintenanceSecurity();
-                syncData(); 
+
+                // Sincronização em tempo real do perfil do jogador
+                db.ref('users/' + user.uid).on('value', (snapshot) => {
+                    userData = snapshot.val() || {};
+                    if (!userData.email) {
+                        userData = {
+                            name: user.displayName || 'Novo Estudante',
+                            email: user.email,
+                            lingots: 50,
+                            energy: 5,
+                            streak: 0,
+                            xp: 0,
+                            level: 1,
+                            currentCourse: 'en',
+                            avatar: defaultAvatar,
+                            subscription: 'free'
+                        };
+                        db.ref('users/' + user.uid).set(userData);
+                    }
+                    updateUI();
+                });
+            } else {
+                currentUser = null;
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('main-screen').classList.add('hidden');
             }
-            else { currentUser = null; document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('main-screen').classList.add('hidden'); }
+            applyMaintenanceSecurity();
         });
 
-        function syncData() {
-            db.ref('users/' + currentUser.uid).on('value', (snapshot) => {
-                if (!snapshot.exists()) return;
-                userData = snapshot.val();
-                
-                // Trava de segurança contra banimentos em tempo real
-                if (userData.banned === true) {
-                    document.getElementById('banned-screen').classList.remove('hidden');
-                    auth.signOut();
-                    return;
-                } else { document.getElementById('banned-screen').classList.add('hidden'); }
-
-                document.getElementById('user-streak').innerText = userData.streak || 0;
-                document.getElementById('user-lingots').innerText = userData.lingots || 50;
-                document.getElementById('user-energy').innerText = (userData.subscription === 'super' || userData.subscription === 'meta') ? '∞' : (userData.energy !== undefined ? userData.energy : 5);
-                
-                document.getElementById('profile-name-input').value = userData.displayName || "Estudante";
-                document.getElementById('profile-email').innerText = userData.email;
-                document.getElementById('profile-xp').innerText = userData.xp || 0;
-                document.getElementById('profile-level').innerText = Math.floor((userData.xp || 0) / 100) + 1;
-                document.getElementById('course-selector').value = userData.currentCourse || "en";
-                
-                const pBadge = document.getElementById('premium-badge');
-                const sub = userData.subscription || 'free';
-                if (sub === 'meta') {
-                    pBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500 text-white animate-pulse";
-                    pBadge.innerText = "👑 Meta User"; pBadge.classList.remove('hidden');
-                } else if (sub === 'super') {
-                    pBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-purple-600 text-white";
-                    pBadge.innerText = "✨ Super"; pBadge.classList.remove('hidden');
-                } else { pBadge.classList.add('hidden'); }
-
-                const currentAvatarHTML = generateAvatarSVG(userData.avatar, sub);
-                document.getElementById('profile-avatar-render').innerHTML = currentAvatarHTML;
-                document.getElementById('nav-avatar-container').innerHTML = currentAvatarHTML;
-
-                if ((userData.streak || 0) > 0) document.getElementById('streak-icon').classList.add('animate-fire', 'inline-block');
-                else document.getElementById('streak-icon').classList.remove('animate-fire');
-
-                renderTree(userData.currentCourse || "en");
-                loadIncomingRequests();
-                loadSocialRanking();
-            });
+        // --- ROTEADOR INTERNO (SWITCH TABS) ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
         }
 
-        // --- SISTEMA DE ASSINATURAS ---
-        window.subscribePlan = function(planType) {
-            db.ref('users/' + currentUser.uid).update({ subscription: planType });
-        };
-
-        function renderTree(courseKey) {
-            const container = document.getElementById('dynamic-skills-tree'); container.innerHTML = '';
-            const skills = treeMeta[courseKey] || []; const userXp = userData.xp || 0;
+        // --- SINC INTERFACE GERAL (UI) ---
+        function updateUI() {
+            if (!userData) return;
+            document.getElementById('user-energy').innerText = userData.energy ?? 5;
+            document.getElementById('user-streak').innerText = userData.streak ?? 0;
+            document.getElementById('user-lingots').innerText = userData.lingots ?? 50;
+            document.getElementById('profile-xp').innerText = userData.xp ?? 0;
+            document.getElementById('profile-level').innerText = userData.level ?? 1;
+            document.getElementById('profile-email').innerText = userData.email || '';
+            document.getElementById('profile-name-input').value = userData.name || '';
             
-            skills.forEach((sk, idx) => {
-                const alignClass = idx % 2 === 0 ? '' : 'translate-x-12';
-                const isLocked = userXp < sk.xpRequired;
-                let btnHTML = isLocked 
-                    ? `<button class="w-16 h-16 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xl font-bold cursor-not-allowed border-2 border-gray-400">🔒</button>`
-                    : `<button onclick="startLesson('${sk.id}')" style="background-color: ${sk.color}" class="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-lg transform hover:scale-105 transition-all">${sk.icon}</button>`;
+            if (userData.currentCourse) {
+                document.getElementById('course-selector').value = userData.currentCourse;
+            }
 
-                container.innerHTML += `
-                    <div class="text-center ${alignClass} flex flex-col items-center">
-                        ${btnHTML}
-                        <p class="font-extrabold mt-2 text-xs text-gray-700">${sk.name}</p>
-                    </div>
-                `;
-            });
+            renderSkillsTree();
+            renderAvatarPreview();
         }
 
+        // Troca de curso ativa no seletor
         document.getElementById('course-selector').addEventListener('change', (e) => {
-            db.ref('users/' + currentUser.uid).update({ currentCourse: e.target.value });
+            if (currentUser) db.ref('users/' + currentUser.uid + '/currentCourse').set(e.target.value);
         });
 
-        // --- EXECUÇÃO DAS LIÇÕES ---
-        window.startLesson = function(skill) {
-            const currentEnergy = userData.energy !== undefined ? userData.energy : 5;
-            if (currentEnergy <= 0 && userData.subscription === 'free') {
-                alert("Você está sem energia! Aguarde ou adquira um plano Premium."); return;
-            }
+        // --- SISTEMA DE COMPORTAMENTO DE LIÇÕES ---
+        function renderSkillsTree() {
             const course = userData.currentCourse || 'en';
-            currentLessonData = lessonsDB[course][skill];
-            if (!currentLessonData) return;
-            currentStep = 0; isAnswerChecked = false;
-            document.getElementById('lesson-modal').classList.remove('hidden');
-            renderStep();
-        };
+            const container = document.getElementById('dynamic-skills-tree');
+            container.innerHTML = '';
 
-        window.closeLesson = function() { document.getElementById('lesson-modal').classList.add('hidden'); };
-
-        function renderStep() {
-            isAnswerChecked = false;
-            document.getElementById('feedback-panel').classList.add('hidden');
-            document.getElementById('lesson-submit').innerText = "Verificar";
-            document.getElementById('lesson-counter').innerText = `${currentStep + 1}/${currentLessonData.length}`;
-            document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
-
-            if (currentStep >= currentLessonData.length) {
-                const isMeta = userData.subscription === 'meta';
-                const xpGanho = isMeta ? 20 : 10;
-
-                document.getElementById('lesson-progress').style.width = '100%';
-                document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center";
-                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Excelente!</h3><p>Fase concluída! +${xpGanho} XP adicionados.</p>`;
-                document.getElementById('feedback-panel').classList.remove('hidden');
-                playSound('correct');
-
-                document.getElementById('lesson-submit').innerText = "Concluir";
-                document.getElementById('lesson-submit').onclick = function() {
-                    const hoje = new Date().toDateString();
-                    let novaOfensiva = userData.streak || 0;
-                    if (userData.lastLessonDate !== hoje) novaOfensiva++;
-
-                    db.ref('users/' + currentUser.uid).update({ xp: (userData.xp || 0) + xpGanho, streak: novaOfensiva, lastLessonDate: hoje });
-                    closeLesson();
-                    document.getElementById('lesson-submit').onclick = checkAnswer;
-                };
+            const skills = treeMeta[course] || [];
+            if (skills.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 font-bold text-sm text-center">Nenhuma lição mapeada para este curso ainda.</p>`;
                 return;
             }
 
+            skills.forEach(skill => {
+                const isLocked = (userData.xp || 0) < skill.xpRequired;
+                const btn = document.createElement('button');
+                btn.className = `w-20 h-20 rounded-full flex flex-col items-center justify-center text-2xl font-black shadow-lg transition-all relative ${isLocked ? 'bg-gray-200 border-b-4 border-gray-300 cursor-not-allowed opacity-50' : 'hover:scale-105 active:scale-95'}`;
+                
+                if (!isLocked) {
+                    btn.style.backgroundColor = skill.color;
+                    btn.style.borderBottom = `6px solid rgba(0,0,0,0.2)`;
+                    btn.onclick = () => startLesson(course, skill.id);
+                }
+                btn.innerHTML = `<span>${skill.icon}</span><span class="text-[11px] block absolute -bottom-6 text-gray-500 font-extrabold whitespace-nowrap">${skill.name}</span>`;
+                container.appendChild(btn);
+            });
+        }
+
+        function startLesson(course, skillId) {
+            const questions = lessonsDB[course]?.[skillId];
+            if (!questions || questions.length === 0) return alert('Nenhum dado cadastrado para essa lição!');
+            
+            if ((userData.energy || 0) <= 0 && userData.subscription === 'free') {
+                return alert('Você não possui mais vidas! Recarregue ou mude para o Plano Premium.');
+            }
+
+            currentLessonData = [...questions];
+            currentStep = 0;
+            document.getElementById('lesson-modal').classList.remove('hidden');
+            renderStep();
+        }
+
+        function renderStep() {
+            if (currentStep >= currentLessonData.length) {
+                alert('🎉 Parabéns! Você completou a lição com sucesso.');
+                if (currentUser) {
+                    db.ref('users/' + currentUser.uid + '/xp').set((userData.xp || 0) + 15);
+                    db.ref('users/' + currentUser.uid + '/lingots').set((userData.lingots || 0) + 5);
+                }
+                closeLesson();
+                return;
+            }
+
+            isAnswerChecked = false;
+            selectedOptionIndex = null;
             const stepData = currentLessonData[currentStep];
+
+            const progressPct = (currentStep / currentLessonData.length) * 100;
+            document.getElementById('lesson-progress').style.width = `${progressPct}%`;
+            document.getElementById('lesson-counter').innerText = `${currentStep + 1}/${currentLessonData.length}`;
+            
+            document.getElementById('activity-type-badge').innerText = stepData.type;
             document.getElementById('lesson-question').innerText = stepData.q;
+            
             speak(stepData.q, userData.currentCourse || 'en');
 
-            const optionsContainer = document.getElementById('lesson-options'); optionsContainer.innerHTML = '';
+            const optionsContainer = document.getElementById('lesson-options');
+            optionsContainer.innerHTML = '';
+            
             stepData.options.forEach((opt, idx) => {
-                optionsContainer.innerHTML += `<button onclick="selectOption(${idx}, '${opt}')" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] bg-white" data-index="${idx}">${opt}</button>`;
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 border-2 border-[#e5e5e5] rounded-2xl font-bold text-sm bg-white hover:bg-gray-50 transition-all text-[#3c3c3c] shadow-sm";
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(idx, btn);
+                optionsContainer.appendChild(btn);
             });
-            selectedOptionIndex = null;
+
+            const submitBtn = document.getElementById('lesson-submit');
+            submitBtn.innerText = "Verificar";
+            submitBtn.className = "w-full max-w-md mx-auto duo-btn-blue text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider";
+            document.getElementById('feedback-panel').classList.add('hidden');
         }
 
-        window.selectOption = function(idx, wordText) {
+        function selectOption(index, element) {
             if (isAnswerChecked) return;
-            speak(wordText, userData.currentCourse || 'en');
-            document.querySelectorAll('.option-btn').forEach(b => { b.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]'); b.classList.add('border-[#e5e5e5]'); });
-            document.querySelector(`[data-index="${idx}"]`).classList.add('border-[#1cb0f6]', 'bg-[#ddf4ff]');
-            selectedOptionIndex = idx;
-        };
-
-        window.checkAnswer = function() {
-            if (selectedOptionIndex === null) return;
-            if (isAnswerChecked) { currentStep++; renderStep(); return; }
-
-            const stepData = currentLessonData[currentStep]; isAnswerChecked = true;
-            const panel = document.getElementById('feedback-panel');
-
-            if (selectedOptionIndex === stepData.correct) {
-                playSound('correct');
-                panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-green-100 text-green-700";
-                document.getElementById('feedback-text').innerText = "✨ Resposta correta!";
-            } else {
-                playSound('wrong');
-                panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-red-100 text-red-700";
-                document.getElementById('feedback-text').innerText = `😢 Resposta certa: ${stepData.options[stepData.correct]}`;
-                
-                // Redução de vida automática se for plano gratuito (Free)
-                if (userData.subscription === 'free' || !userData.subscription) {
-                    let cEnergy = userData.energy !== undefined ? userData.energy : 5;
-                    cEnergy = Math.max(0, cEnergy - 1);
-                    db.ref('users/' + currentUser.uid).update({ energy: cEnergy });
-                }
-            }
-            document.getElementById('lesson-submit').innerText = "Continuar";
-            panel.classList.remove('hidden');
-        };
-
-        // --- SISTEMA SOCIAL E DE AMIZADES ---
-        window.sendFriendRequest = function() {
-            const targetEmail = document.getElementById('friend-search-input').value.toLowerCase().trim();
-            const msgEl = document.getElementById('social-status-msg'); if (!targetEmail) return;
-
-            msgEl.innerText = "Procurando...";
-            db.ref('emails/' + targetEmail.replace(/\./g, ',')).once('value', (snap) => {
-                if (snap.exists()) {
-                    const targetUid = snap.val();
-                    if (targetUid === currentUser.uid) { msgEl.innerText = "Operação inválida."; return; }
-                    db.ref(`users/${targetUid}/friend_requests/${currentUser.uid}`).set({ fromName: userData.displayName || "Usuário", fromEmail: userData.email }).then(() => {
-                        msgEl.innerText = "Convite enviado!"; document.getElementById('friend-search-input').value = "";
-                    });
-                } else msgEl.innerText = "Usuário não localizado.";
+            selectedOptionIndex = index;
+            
+            document.querySelectorAll('#lesson-options button').forEach(btn => {
+                btn.classList.remove('border-[#1cb0f6]', 'bg-blue-50');
+                btn.classList.add('border-[#e5e5e5]');
             });
-        };
-
-        function loadIncomingRequests() {
-            const box = document.getElementById('notifications-box'); const listContainer = document.getElementById('incoming-requests-list');
-            const badge = document.getElementById('notif-badge');
-
-            db.ref(`users/${currentUser.uid}/friend_requests`).on('value', (snap) => {
-                listContainer.innerHTML = '';
-                if (snap.exists()) {
-                    const requests = snap.val(); badge.innerText = Object.keys(requests).length;
-                    badge.classList.remove('hidden'); box.classList.remove('hidden');
-                    Object.keys(requests).forEach(senderUid => {
-                        listContainer.innerHTML += `<div class="flex items-center justify-between bg-white p-3 rounded-xl border"><span><b>${requests[senderUid].fromName}</b></span><div class="flex gap-1"><button onclick="acceptFriend('${senderUid}')" class="bg-[#58cc02] text-white text-xs px-3 py-1 font-bold rounded-lg">Aceitar</button></div></div>`;
-                    });
-                } else { badge.classList.add('hidden'); box.classList.add('hidden'); }
-            });
+            
+            element.classList.remove('border-[#e5e5e5]');
+            element.classList.add('border-[#1cb0f6]', 'bg-blue-50');
         }
 
-        window.acceptFriend = function(senderUid) {
-            db.ref(`users/${currentUser.uid}/friends/${senderUid}`).set(true);
-            db.ref(`users/${senderUid}/friends/${currentUser.uid}`).set(true);
-            db.ref(`users/${currentUser.uid}/friend_requests/${senderUid}`).remove();
-        };
+        function checkAnswer() {
+            if (selectedOptionIndex === null) return alert('Escolha uma alternativa antes de continuar!');
+            
+            const stepData = currentLessonData[currentStep];
+            const submitBtn = document.getElementById('lesson-submit');
+            const feedbackPanel = document.getElementById('feedback-panel');
+            const feedbackText = document.getElementById('feedback-text');
 
-        function loadSocialRanking() {
-            let rankingData = []; rankingData.push({ uid: currentUser.uid, avatar: userData.avatar, name: (userData.displayName || "Você"), xp: (userData.xp || 0), isMe: true, subscription: userData.subscription || 'free' });
-            if (userData.friends) {
-                const promises = Object.keys(userData.friends).map(fUid => db.ref('users/' + fUid).once('value').then(snap => {
-                    if (snap.exists()) { const f = snap.val(); rankingData.push({ uid: fUid, avatar: f.avatar, name: f.displayName || "Estudante", xp: f.xp || 0, isMe: false, subscription: f.subscription || 'free' }); }
-                }));
-                Promise.all(promises).then(() => renderSocialRankingHTML(rankingData));
-            } else renderSocialRankingHTML(rankingData);
-        }
+            if (!isAnswerChecked) {
+                isAnswerChecked = true;
+                const isCorrect = selectedOptionIndex === stepData.correct;
+                feedbackPanel.classList.remove('hidden');
 
-        function renderSocialRankingHTML(list) {
-            list.sort((a, b) => b.xp - a.xp);
-            const container = document.getElementById('social-ranking-list'); container.innerHTML = '';
-            list.forEach((u, i) => {
-                container.innerHTML += `
-                    <div class="duo-card rounded-2xl p-4 flex items-center justify-between ${u.isMe ? 'bg-blue-50 border-blue-300' : 'bg-white'}">
-                        <div class="flex items-center gap-4">
-                            <span class="font-extrabold w-6 text-center">${i + 1}</span>
-                            <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">${generateAvatarSVG(u.avatar, u.subscription)}</div>
-                            <h4 class="font-extrabold text-sm">${u.name}</h4>
-                        </div>
-                        <div class="font-extrabold text-sm text-orange-500">⚡ ${u.xp} XP</div>
-                    </div>
-                `;
-            });
-        }
-
-        window.toggleEditProfile = function() {
-            const input = document.getElementById('profile-name-input'); const btn = document.getElementById('btn-edit-profile');
-            if (input.disabled) { input.disabled = false; input.focus(); btn.innerText = "Salvar"; }
-            else { input.disabled = true; btn.innerText = "Alterar Nome"; db.ref('users/' + currentUser.uid).update({ displayName: input.value }); }
-        };
-
-        window.openAvatarBuilder = function() { document.getElementById('avatar-builder-panel').classList.remove('hidden'); };
-        window.closeAvatarBuilder = function() { document.getElementById('avatar-builder-panel').classList.add('hidden'); };
-        window.previewAvatar = function() {
-            const p = { skin: document.getElementById('av-skin').value, hair: document.getElementById('av-hair').value, hairColor: document.getElementById('av-hair-color').value, clothing: document.getElementById('av-clothing').value, accessory: document.getElementById('av-accessory').value, bg: document.getElementById('av-bg').value };
-            document.getElementById('profile-avatar-render').innerHTML = generateAvatarSVG(p, userData.subscription);
-        };
-        window.saveAvatar = function() {
-            const p = { skin: document.getElementById('av-skin').value, hair: document.getElementById('av-hair').value, hairColor: document.getElementById('av-hair-color').value, clothing: document.getElementById('av-clothing').value, accessory: document.getElementById('av-accessory').value, bg: document.getElementById('av-bg').value };
-            db.ref('users/' + currentUser.uid + '/avatar').set(p).then(() => closeAvatarBuilder());
-        };
-
-        window.switchTab = function(t) { document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden')); document.getElementById(`tab-${t}`).classList.remove('hidden'); };
-
-        // --- SISTEMA INTERNO DO PAINEL DE CONTROLE EXCLUSIVO (ADMIN) ---
-        window.adminSearchUser = function() {
-            const emailTarget = document.getElementById('admin-user-search').value.toLowerCase().trim();
-            if (!emailTarget) return;
-            const lookupKey = emailTarget.replace(/\./g, ',');
-
-            db.ref('emails/' + lookupKey).once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const targetUid = snapshot.val();
-                    db.ref('users/' + targetUid).once('value', (userSnap) => {
-                        const tUser = userSnap.val();
-                        
-                        document.getElementById('admin-target-uid').value = targetUid;
-                        document.getElementById('admin-target-displayname').innerText = `${tUser.displayName} (${tUser.email})`;
-                        document.getElementById('admin-target-lingots').value = tUser.lingots || 0;
-                        document.getElementById('admin-target-energy').value = tUser.energy !== undefined ? tUser.energy : 5;
-                        document.getElementById('admin-target-xp').value = tUser.xp || 0;
-                        document.getElementById('admin-target-sub').value = tUser.subscription || 'free';
-                        
-                        const banBtn = document.getElementById('admin-ban-btn');
-                        if (tUser.banned === true) {
-                            banBtn.innerText = "Desbanir Usuário";
-                            banBtn.className = "bg-green-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wide";
-                        } else {
-                            banBtn.innerText = "Banir Usuário";
-                            banBtn.className = "bg-red-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wide";
-                        }
-
-                        document.getElementById('admin-user-editor').classList.remove('hidden');
-                    });
+                if (isCorrect) {
+                    feedbackPanel.className = "w-full max-w-md mx-auto rounded-2xl p-4 mb-4 font-extrabold text-sm bg-green-100 text-green-700 border-2 border-green-300";
+                    feedbackText.innerText = "🎉 Sensacional! Resposta correta.";
+                    submitBtn.innerText = "Continuar";
+                    submitBtn.className = "w-full max-w-md mx-auto duo-btn-green text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider";
                 } else {
-                    alert("Usuário não encontrado na base de e-mails.");
-                    document.getElementById('admin-user-editor').classList.add('hidden');
+                    feedbackPanel.className = "w-full max-w-md mx-auto rounded-2xl p-4 mb-4 font-extrabold text-sm bg-red-100 text-red-700 border-2 border-red-300";
+                    feedbackText.innerText = `😢 Resposta errada. A correta era: ${stepData.options[stepData.correct]}`;
+                    submitBtn.innerText = "Entendido";
+                    submitBtn.className = "w-full max-w-md mx-auto duo-btn-red text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider";
+
+                    if (currentUser && userData.subscription === 'free') {
+                        const currentEnergy = userData.energy ?? 5;
+                        const newEnergy = Math.max(0, currentEnergy - 1);
+                        db.ref('users/' + currentUser.uid + '/energy').set(newEnergy);
+                        if (newEnergy <= 0) {
+                            alert('Vidas esgotadas!');
+                            closeLesson();
+                        }
+                    }
                 }
-            });
+            } else {
+                currentStep++;
+                renderStep();
+            }
+        }
+
+        function closeLesson() {
+            document.getElementById('lesson-modal').classList.add('hidden');
+        }
+
+        // --- INTERATIVIDADES E BOTÕES (LOGIN / REGISTRO) ---
+        document.getElementById('btn-login-email').onclick = () => {
+            const e = document.getElementById('email-input').value;
+            const p = document.getElementById('password-input').value;
+            auth.signInWithEmailAndPassword(e, p).catch(err => alert('Erro: ' + err.message));
         };
 
-        window.adminSaveUserChanges = function() {
-            const targetUid = document.getElementById('admin-target-uid').value;
-            if (!targetUid) return;
+        document.getElementById('btn-register-email').onclick = () => {
+            const e = document.getElementById('email-input').value;
+            const p = document.getElementById('password-input').value;
+            auth.createUserWithEmailAndPassword(e, p).catch(err => alert('Erro: ' + err.message));
+        };
 
-            const updatedData = {
-                lingots: parseInt(document.getElementById('admin-target-lingots').value) || 0,
-                energy: parseInt(document.getElementById('admin-target-energy').value) || 0,
-                xp: parseInt(document.getElementById('admin-target-xp').value) || 0,
-                subscription: document.getElementById('admin-target-sub').value
+        document.getElementById('btn-login-google').onclick = () => {
+            auth.signInWithPopup(googleProvider).catch(err => alert('Erro Google: ' + err.message));
+        };
+
+        document.getElementById('btn-logout').onclick = () => auth.signOut();
+
+        // --- SISTEMA DE ASSINATURA ---
+        function subscribePlan(plan) {
+            if (!currentUser) return;
+            db.ref('users/' + currentUser.uid + '/subscription').set(plan)
+              .then(() => alert(`Plano atualizado para: ${plan.toUpperCase()}!`));
+        }
+
+        // --- SISTEMA INTERNO DO AVATAR ---
+        function renderAvatarPreview() {
+            const av = userData.avatar || defaultAvatar;
+            const mockSvg = `<div class="w-full h-full flex flex-col items-center justify-center font-black" style="background:${av.bg}; color:${av.clothing}">🦉<span class="text-[10px] text-gray-500 block">${av.hair}</span></div>`;
+            document.getElementById('nav-avatar-container').innerHTML = mockSvg;
+            document.getElementById('profile-avatar-render').innerHTML = mockSvg;
+        }
+
+        function openAvatarBuilder() { document.getElementById('avatar-builder-panel').classList.remove('hidden'); }
+        function closeAvatarBuilder() { document.getElementById('avatar-builder-panel').classList.add('hidden'); }
+        function previewAvatar() {}
+        function saveAvatar() {
+            if (!currentUser) return;
+            const updated = {
+                skin: document.getElementById('av-skin').value,
+                hair: document.getElementById('av-hair').value,
+                hairColor: document.getElementById('av-hair-color').value,
+                clothing: document.getElementById('av-clothing').value,
+                accessory: document.getElementById('av-accessory').value,
+                bg: document.getElementById('av-bg').value
             };
+            db.ref('users/' + currentUser.uid + '/avatar').set(updated).then(() => closeAvatarBuilder());
+        }
 
-            db.ref('users/' + targetUid).update(updatedData).then(() => {
-                alert("Dados do usuário atualizados com sucesso via comando mestre!");
-            });
-        };
+        function toggleEditProfile() {
+            const input = document.getElementById('profile-name-input');
+            if (input.disabled) {
+                input.disabled = false;
+                input.focus();
+                document.getElementById('btn-edit-profile').innerText = "Salvar";
+            } else {
+                input.disabled = true;
+                document.getElementById('btn-edit-profile').innerText = "Alterar Nome";
+                if (currentUser) db.ref('users/' + currentUser.uid + '/name').set(input.value);
+            }
+        }
 
-        window.adminToggleBanUser = function() {
-            const targetUid = document.getElementById('admin-target-uid').value;
-            if (!targetUid) return;
-
-            db.ref(`users/${targetUid}/banned`).once('value', (snap) => {
-                const currentBanStatus = snap.val() || false;
-                db.ref(`users/${targetUid}`).update({ banned: !currentBanStatus }).then(() => {
-                    alert(currentBanStatus ? "Usuário desbanido!" : "Usuário banido com sucesso!");
-                    adminSearchUser(); // Recarrega o estado do form
-                });
-            });
-        };
+        // --- FUNÇÕES EM BRANCO (Para evitar quebras do HTML) ---
+        function toggleGlobalMaintenance() { db.ref('system/maintenance').set(!globalMaintenanceMode); }
+        function sendFriendRequest() {}
+        function adminSearchUser() {}
+        function adminSaveUserChanges() {}
+        function adminToggleBanUser() {}
     </script>
 </body>
 </html>
