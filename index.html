@@ -3,40 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duolingo Clone - Neocities</title>
+    <title>Duolingo Ultra - GitHub Pages</title>
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <style>
         body { font-family: 'Nunito', sans-serif; }
-        .duo-btn-green {
-            background-color: #58cc02;
-            border-bottom: 4px solid #46a302;
-        }
-        .duo-btn-green:active {
-            border-bottom-width: 0px;
-            margin-top: 4px;
-        }
-        .duo-btn-blue {
-            background-color: #1cb0f6;
-            border-bottom: 4px solid #1899d6;
-        }
-        .duo-btn-blue:active {
-            border-bottom-width: 0px;
-            margin-top: 4px;
-        }
-        .duo-card {
-            border: 2px solid #e5e5e5;
-            border-bottom-width: 4px;
-        }
-        .duo-card:active {
-            border-bottom-width: 2px;
-        }
+        .duo-btn-green { background-color: #58cc02; border-bottom: 4px solid #46a302; }
+        .duo-btn-green:active { border-bottom-width: 0px; margin-top: 4px; }
+        .duo-btn-blue { background-color: #1cb0f6; border-bottom: 4px solid #1899d6; }
+        .duo-btn-blue:active { border-bottom-width: 0px; margin-top: 4px; }
+        .duo-card { border: 2px solid #e5e5e5; border-bottom-width: 4px; }
+        .duo-card:active { border-bottom-width: 2px; }
     </style>
 </head>
 <body class="bg-white text-[#3c3c3c] antialiased">
 
+    <!-- Tela 1: Login / Cadastro Real -->
     <div id="auth-screen" class="flex flex-col items-center justify-center min-h-screen px-4">
         <div class="text-center max-w-sm w-full">
             <div class="text-6xl mb-4">🦉</div>
@@ -47,36 +41,30 @@
                 <input id="password-input" type="password" placeholder="Senha" class="w-full px-4 py-3 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-2xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
             </div>
 
-            <button id="btn-login-email" class="w-full duo-btn-green text-white font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-3 transition-all">
-                Entrar com Email
-            </button>
-            <button id="btn-register-email" class="w-full border-2 border-[#e5e5e5] border-bottom-4 hover:bg-[#f7f7f7] font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-6 transition-all">
-                Criar Conta
-            </button>
+            <button id="btn-login-email" class="w-full duo-btn-green text-white font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-3 transition-all">Entrar com Email</button>
+            <button id="btn-register-email" class="w-full border-2 border-[#e5e5e5] hover:bg-[#f7f7f7] font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider mb-6 transition-all">Criar Conta</button>
 
-            <div class="relative flex py-4 items-center">
-                <div class="flex-grow border-t border-[#e5e5e5]"></div>
-                <span class="flex-shrink mx-4 text-[#afafaf] font-bold text-xs uppercase">Ou</span>
-                <div class="flex-grow border-t border-[#e5e5e5]"></div>
-            </div>
-
+            <div class="relative flex py-4 items-center"><div class="flex-grow border-t border-[#e5e5e5]"></div><span class="flex-shrink mx-4 text-[#afafaf] font-bold text-xs uppercase">Ou</span><div class="flex-grow border-t border-[#e5e5e5]"></div></div>
             <button id="btn-login-google" class="w-full border-2 border-[#e5e5e5] hover:bg-[#f7f7f7] font-extrabold py-3 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
-                Entrar com o Google
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google"> Entrar com o Google
             </button>
         </div>
     </div>
 
+    <!-- Tela 2: Dashboard Principal -->
     <div id="main-screen" class="hidden min-h-screen flex flex-col md:flex-row">
-        
+        <!-- Sidebar Navigation -->
         <nav class="w-full md:w-64 border-r-2 border-[#e5e5e5] p-4 flex flex-row md:flex-col justify-between md:justify-start gap-2 fixed bottom-0 md:relative bg-white z-50">
             <div class="hidden md:block text-2xl font-extrabold text-[#58cc02] tracking-wide p-4 mb-6">duolingo</div>
             
-            <button onclick="switchTab('learn')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777] active:text-[#1cb0f6]">
+            <button onclick="switchTab('learn')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
                 <span class="text-xl">🏡</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Aprender</span>
             </button>
-            <button onclick="switchTab('profile')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777] active:text-[#1cb0f6]">
+            <button onclick="switchTab('profile')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
                 <span id="nav-avatar" class="text-xl">🦉</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Perfil</span>
+            </button>
+            <button onclick="switchTab('friends')" class="flex items-center gap-4 p-3 w-full hover:bg-[#f7f7f7] rounded-xl font-extrabold text-[#777]">
+                <span class="text-xl">👑</span> <span class="hidden md:inline text-sm uppercase tracking-wider">Ranking</span>
             </button>
             
             <button id="btn-logout" class="hidden md:flex items-center gap-4 p-3 w-full hover:bg-red-50 rounded-xl font-extrabold text-red-500 mt-auto">
@@ -84,19 +72,16 @@
             </button>
         </nav>
 
+        <!-- Área de Conteúdo -->
         <main class="flex-1 p-6 mb-20 md:mb-0 max-w-2xl mx-auto w-full">
-            
             <div class="flex items-center justify-end gap-6 border-b-2 border-[#e5e5e5] pb-4 mb-6 font-extrabold text-sm">
-                <div class="flex items-center gap-2 text-orange-500">
-                    <span>🔥</span> <span id="user-streak">0</span>
-                </div>
-                <div class="flex items-center gap-2 text-[#ffc800]">
-                    <span>💎</span> <span id="user-lingots">50</span>
-                </div>
+                <div class="flex items-center gap-2 text-orange-500"><span>🔥</span> <span id="user-streak">0</span></div>
+                <div class="flex items-center gap-2 text-[#ffc800]"><span>💎</span> <span id="user-lingots">50</span></div>
             </div>
 
+            <!-- Aba: Aprender -->
             <div id="tab-learn" class="tab-content">
-                <div class="mb-8">
+                <div class="mb-6">
                     <label class="block text-xs font-extrabold text-[#afafaf] uppercase tracking-wider mb-2">Curso Atual</label>
                     <select id="course-selector" class="bg-white border-2 border-[#e5e5e5] rounded-xl px-4 py-2 font-bold focus:outline-none">
                         <option value="en">🇺🇸 Inglês</option>
@@ -104,22 +89,31 @@
                     </select>
                 </div>
 
-                <div class="flex flex-col items-center gap-8 py-4">
+                <!-- Árvore Zig-Zag -->
+                <div class="flex flex-col items-center gap-6 py-4">
                     <div class="text-center">
-                        <button onclick="startLesson()" class="w-20 h-20 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-3xl font-bold shadow-[0_6px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_4px_0_#46a302] transition-all">
-                            💬
-                        </button>
-                        <p class="font-extrabold mt-3 text-sm">Saudações</p>
+                        <button onclick="startLesson('saudaçoes')" class="w-16 h-16 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_3px_0_#46a302] transition-all">💬</button>
+                        <p class="font-extrabold mt-2 text-xs">Saudações</p>
                     </div>
-
-                    <div class="text-center opacity-60">
-                        <button class="w-20 h-20 bg-[#1cb0f6] text-white rounded-full flex items-center justify-center text-3xl font-bold shadow-[0_6px_0_#1899d6] cursor-not-allowed">
-                            🍎
-                        </button>
-                        <p class="font-extrabold mt-3 text-sm">Comida</p>
+                    <div class="text-center translate-x-12">
+                        <button onclick="startLesson('comidas')" class="w-16 h-16 bg-[#58cc02] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#46a302] hover:translate-y-[2px] hover:shadow-[0_3px_0_#46a302] transition-all">🍎</button>
+                        <p class="font-extrabold mt-2 text-xs">Comidas</p>
+                    </div>
+                    <div class="text-center -translate-x-12">
+                        <button onclick="startLesson('pronuncia')" class="w-16 h-16 bg-[#1cb0f6] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#1899d6] hover:translate-y-[2px] hover:shadow-[0_3px_0_#1899d6] transition-all">🗣️</button>
+                        <p class="font-extrabold mt-2 text-xs">Pronúncia</p>
+                    </div>
+                    <div class="text-center">
+                        <button onclick="startLesson('palavras')" class="w-16 h-16 bg-[#ffc800] text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#e6b400] hover:translate-y-[2px] hover:shadow-[0_3px_0_#e6b400] transition-all">📚</button>
+                        <p class="font-extrabold mt-2 text-xs">Palavras Úteis</p>
+                    </div>
+                    <div class="text-center translate-x-12">
+                        <button onclick="startLesson('viagem')" class="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-[0_5px_0_#c73e00] hover:translate-y-[2px] hover:shadow-[0_3px_0_#c73e00] transition-all">✈️</button>
+                        <p class="font-extrabold mt-2 text-xs">Viagem</p>
                     </div>
                 </div>
 
+                <!-- Modal de Lição SEM POPUPS -->
                 <div id="lesson-modal" class="hidden fixed inset-0 bg-white z-50 p-6 flex flex-col justify-between">
                     <div class="flex justify-between items-center">
                         <button onclick="closeLesson()" class="text-2xl font-bold text-[#afafaf]">✕</button>
@@ -127,37 +121,40 @@
                             <div id="lesson-progress" class="bg-[#58cc02] h-full transition-all duration-300" style="width: 0%"></div>
                         </div>
                     </div>
-                    
-                    <div class="text-center max-w-md mx-auto my-auto">
-                        <h2 id="lesson-question" class="text-2xl font-extrabold mb-8">Como se diz "Olá"?</h2>
-                        <div id="lesson-options" class="grid grid-cols-1 gap-3">
-                            </div>
+
+                    <div id="lesson-main-content" class="text-center max-w-md mx-auto my-auto w-full">
+                        <button onclick="speakCurrentQuestion()" class="text-3xl p-3 bg-blue-50 text-[#1cb0f6] rounded-full mb-3 hover:scale-105 transition-all">🔊 Ouvir</button>
+                        <h2 id="lesson-question" class="text-2xl font-extrabold mb-8">Questão</h2>
+                        <div id="lesson-options" class="grid grid-cols-1 gap-3"></div>
                     </div>
 
-                    <button id="lesson-submit" onclick="checkAnswer()" class="w-full max-w-md mx-auto duo-btn-blue text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider">
-                        Verificar
-                    </button>
+                    <div id="feedback-panel" class="w-full max-w-md mx-auto rounded-2xl p-4 mb-4 hidden font-extrabold text-sm transition-all duration-200">
+                        <p id="feedback-text" class="text-lg"></p>
+                    </div>
+
+                    <button id="lesson-submit" onclick="checkAnswer()" class="w-full max-w-md mx-auto duo-btn-blue text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider">Verificar</button>
                 </div>
             </div>
 
+            <!-- Aba: Perfil -->
             <div id="tab-profile" class="tab-content hidden">
-                <div class="duo-card rounded-2xl p-6 mb-6 flex items-center gap-6">
-                    <div class="relative group">
+                <div class="duo-card rounded-2xl p-6 mb-6 flex flex-col sm:flex-row items-center gap-6">
+                    <div class="relative">
                         <div id="profile-avatar-display" class="text-6xl bg-[#f7f7f7] p-4 rounded-full border-2 border-[#e5e5e5]">🦉</div>
                         <select id="avatar-selector" class="absolute inset-0 opacity-0 cursor-pointer">
-                            <option value="🦉">🦉 Coruja</option>
-                            <option value="🐱">🐱 Gatinho</option>
-                            <option value="🦊">🦊 Raposa</option>
-                            <option value="🐻">🐻 Urso</option>
-                            <option value="🐸">🐸 Sapinho</option>
+                            <option value="🦉">🦉 Duo</option><option value="🐱">🐱 Gatinho</option>
+                            <option value="🦊">🦊 Raposinha</option><option value="🐻">🐻 Ursinho</option>
+                            <option value="🐸">🐸 Sapinho</option><option value="🦁">🦁 Leãozinho</option>
+                            <option value="🦄">🦄 Unicórnio</option><option value="🐼">🐼 Panda</option>
+                            <option value="🦈">🦈 Tubarão</option><option value="🤖">🤖 Robô</option>
                         </select>
                     </div>
-                    <div>
-                        <h2 id="profile-name" class="text-2xl font-extrabold">Carregando...</h2>
-                        <p id="profile-email" class="text-[#afafaf] font-bold text-sm"></p>
+                    <div class="flex-1 w-full text-center sm:text-left">
+                        <label class="text-xs font-bold text-gray-400 uppercase">Nome de Exibição (Mude aqui)</label>
+                        <input id="profile-name-input" type="text" class="text-2xl font-extrabold bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-[#1cb0f6] focus:outline-none w-full py-1 text-center sm:text-left">
+                        <p id="profile-email" class="text-[#afafaf] font-bold text-sm mt-1"></p>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div class="duo-card rounded-2xl p-4 text-center">
                         <span class="text-2xl">⚡</span>
@@ -167,20 +164,30 @@
                     <div class="duo-card rounded-2xl p-4 text-center">
                         <span class="text-2xl">👑</span>
                         <h3 class="font-extrabold text-xl mt-1" id="profile-level">1</h3>
-                        <p class="text-[#afafaf] text-xs font-bold uppercase">Nível do Perfil</p>
+                        <p class="text-[#afafaf] text-xs font-bold uppercase">Nível</p>
                     </div>
                 </div>
             </div>
 
+            <!-- Aba: Amigos & Ranking -->
+            <div id="tab-friends" class="tab-content hidden">
+                <div class="duo-card rounded-2xl p-4 mb-6">
+                    <h3 class="font-extrabold text-base mb-3">Adicionar Amigos nas Ligas</h3>
+                    <div class="flex gap-2">
+                        <input id="friend-search-input" type="text" placeholder="E-mail exato do amigo" class="flex-1 px-4 py-2 bg-[#f7f7f7] border-2 border-[#e5e5e5] rounded-xl focus:outline-none focus:border-[#1cb0f6] font-bold text-sm">
+                        <button onclick="addFriend()" class="duo-btn-blue text-white px-4 rounded-xl font-extrabold text-sm uppercase tracking-wider">Seguir</button>
+                    </div>
+                    <p id="friend-status-msg" class="text-xs font-bold mt-2 text-gray-400"></p>
+                </div>
+
+                <h3 class="font-extrabold text-lg mb-3">🏆 Ranking da Liga (Por XP)</h3>
+                <div id="friends-list" class="space-y-3"></div>
+            </div>
         </main>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-
-        // Configuração do Firebase fornecida
+    <!-- LÓGICA DO SISTEMA -->
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyD3gIAvakHjgEJjZyfvGQaDO83QiW982eo",
             authDomain: "duolingo-neocities.firebaseapp.com",
@@ -192,66 +199,113 @@
             measurementId: "G-JSTRBFSZ6W"
         };
 
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        const googleProvider = new GoogleAuthProvider();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        // Estado local do App
         let currentUser = null;
-        let userData = { xp: 0, streak: 0, lingots: 50, avatar: "🦉", currentCourse: "en" };
+        let userData = {};
         let currentLessonData = null;
         let currentStep = 0;
+        let selectedOptionIndex = null;
+        let isAnswerChecked = false;
 
-        // Banco de Questões Simples
         const lessonsDB = {
-            en: [
-                { q: 'Como se diz "Olá"?', options: ['Hello', 'Goodbye', 'Apple'], correct: 0 },
-                { q: 'Como se diz "Obrigado"?', options: ['Please', 'Thank you', 'Water'], correct: 1 }
-            ],
-            es: [
-                { q: 'Como se diz "Olá"?', options: ['Hola', 'Adiós', 'Manzana'], correct: 0 },
-                { q: 'Como se diz "Obrigado"?', options: ['Por favor', 'Gracias', 'Agua'], correct: 1 }
-            ]
+            en: {
+                saudaçoes: [
+                    { q: 'Hello', options: ['Olá', 'Tchau', 'Maçã'], correct: 0 },
+                    { q: 'Good morning', options: ['Boa noite', 'Bom dia', 'Por favor'], correct: 1 }
+                ],
+                comidas: [
+                    { q: 'Bread', options: ['Carne', 'Pão', 'Suco'], correct: 1 },
+                    { q: 'Water', options: ['Leite', 'Água', 'Arroz'], correct: 1 }
+                ],
+                pronuncia: [{ q: 'Red', options: ['Vermelho', 'Azul', 'Verde'], correct: 0 }],
+                palavras: [{ q: 'Please', options: ['De nada', 'Por favor', 'Obrigado'], correct: 1 }],
+                viagem: [{ q: 'Passport', options: ['Avião', 'Hotel', 'Passaporte'], correct: 2 }]
+            },
+            es: {
+                saudaçoes: [{ q: 'Hola', options: ['Olá', 'Adeus', 'Obrigado'], correct: 0 }],
+                comidas: [{ q: 'Leche', options: ['Leite', 'Água', 'Pão'], correct: 0 }],
+                pronuncia: [{ q: 'Niño', options: ['Menino', 'Menina', 'Carro'], correct: 0 }],
+                palavras: [{ q: 'Gracias', options: ['Por favor', 'Obrigado', 'Olá'], correct: 1 }],
+                viagem: [{ q: 'Avión', options: ['Trem', 'Carro', 'Avião'], correct: 2 }]
+            }
         };
 
-        // --- AUTH LOGIC ---
-        const emailInput = document.getElementById('email-input');
-        const passwordInput = document.getElementById('password-input');
+        // --- SISTEMA DE AUDIO SINTETIZADO (NATIVO SEM ARQUIVOS EXTERNOS) ---
+        function playSound(type) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
 
+            if (type === 'correct') {
+                // Som de acerto (Plim!)
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.start(); osc.stop(ctx.currentTime + 0.4);
+            } else if (type === 'wrong') {
+                // Som de erro (Bléh)
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.start(); osc.stop(ctx.currentTime + 0.3);
+            }
+        }
+
+        // --- TEXT TO SPEECH (VOZ DO DUOLINGO) ---
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel(); // Para vozes anteriores
+            const utterance = new SpeechSynthesisUtterance(text);
+            const course = userData.currentCourse || 'en';
+            utterance.lang = course === 'en' ? 'en-US' : 'es-ES';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakCurrentQuestion() {
+            if (currentLessonData && currentLessonData[currentStep]) {
+                speakText(currentLessonData[currentStep].q);
+            }
+        }
+
+        // Auth Listeners
         document.getElementById('btn-login-email').addEventListener('click', () => {
-            signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value).catch(err => alert(err.message));
+            auth.signInWithEmailAndPassword(document.getElementById('email-input').value, document.getElementById('password-input').value).catch(err => alert(err.message));
         });
 
         document.getElementById('btn-register-email').addEventListener('click', () => {
-            createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-                .then((cred) => {
-                    // Inicializa os dados do novo usuário no Realtime Database
-                    set(ref(db, 'users/' + cred.user.uid), userData);
-                }).catch(err => alert(err.message));
+            const email = document.getElementById('email-input').value;
+            auth.createUserWithEmailAndPassword(email, document.getElementById('password-input').value).then((cred) => {
+                db.ref('users/' + cred.user.uid).set({ email: email, displayName: email.split('@')[0], xp: 0, streak: 0, lingots: 50, avatar: "🦉", currentCourse: "en" });
+            }).catch(err => alert(err.message));
         });
 
         document.getElementById('btn-login-google').addEventListener('click', () => {
-            signInWithPopup(auth, googleProvider).then((cred) => {
-                // Checa se usuário já tem dados cadastrados, senão cria
-                get(ref(db, 'users/' + cred.user.uid)).then((snapshot) => {
+            auth.signInWithPopup(googleProvider).then((cred) => {
+                db.ref('users/' + cred.user.uid).once('value').then((snapshot) => {
                     if (!snapshot.exists()) {
-                        set(ref(db, 'users/' + cred.user.uid), userData);
+                        db.ref('users/' + cred.user.uid).set({ email: cred.user.email, displayName: cred.user.displayName, xp: 0, streak: 0, lingots: 50, avatar: "🦊", currentCourse: "en" });
                     }
                 });
             }).catch(err => alert(err.message));
         });
 
-        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+        document.getElementById('btn-logout').addEventListener('click', () => auth.signOut());
 
-        // Monitorar Status de Autenticação
-        onAuthStateChanged(auth, (user) => {
+        auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-screen').classList.remove('hidden');
-                syncUserData();
+                syncData();
             } else {
                 currentUser = null;
                 document.getElementById('auth-screen').classList.remove('hidden');
@@ -259,114 +313,203 @@
             }
         });
 
-        // --- DATA SYNC ---
-        async function syncUserData() {
-            if (!currentUser) return;
-            const snapshot = await get(ref(db, 'users/' + currentUser.uid));
-            if (snapshot.exists()) {
-                userData = { ...userData, ...snapshot.val() };
-            }
-            
-            // Atualizar UI
-            document.getElementById('user-streak').innerText = userData.streak || 0;
-            document.getElementById('user-lingots').innerText = userData.lingots || 50;
-            document.getElementById('profile-name').innerText = currentUser.displayName || 'Estudante';
-            document.getElementById('profile-email').innerText = currentUser.email;
-            document.getElementById('profile-xp').innerText = userData.xp || 0;
-            document.getElementById('profile-level').innerText = Math.floor((userData.xp || 0) / 100) + 1;
-            document.getElementById('profile-avatar-display').innerText = userData.avatar || "🦉";
-            document.getElementById('nav-avatar').innerText = userData.avatar || "🦉";
-            document.getElementById('course-selector').value = userData.currentCourse || "en";
+        function syncData() {
+            db.ref('users/' + currentUser.uid).on('value', (snapshot) => {
+                if (!snapshot.exists()) return;
+                userData = snapshot.val();
+                
+                document.getElementById('user-streak').innerText = userData.streak || 0;
+                document.getElementById('user-lingots').innerText = userData.lingots || 50;
+                document.getElementById('profile-name-input').value = userData.displayName || "Estudante";
+                document.getElementById('profile-email').innerText = userData.email;
+                document.getElementById('profile-xp').innerText = userData.xp || 0;
+                document.getElementById('profile-level').innerText = Math.floor((userData.xp || 0) / 100) + 1;
+                document.getElementById('profile-avatar-display').innerText = userData.avatar || "🦉";
+                document.getElementById('nav-avatar').innerText = userData.avatar || "🦉";
+                document.getElementById('course-selector').value = userData.currentCourse || "en";
+                
+                loadFriendsRanking();
+            });
         }
 
-        // Mudar Avatar
-        document.getElementById('avatar-selector').addEventListener('change', (e) => {
-            const newAvatar = e.target.value;
-            update(ref(db, 'users/' + currentUser.uid), { avatar: newAvatar });
-            syncUserData();
-        });
+        document.getElementById('profile-name-input').addEventListener('change', (e) => { db.ref('users/' + currentUser.uid).update({ displayName: e.target.value }); });
+        document.getElementById('avatar-selector').addEventListener('change', (e) => { db.ref('users/' + currentUser.uid).update({ avatar: e.target.value }); });
+        document.getElementById('course-selector').addEventListener('change', (e) => { db.ref('users/' + currentUser.uid).update({ currentCourse: e.target.value }); });
 
-        // Mudar Curso
-        document.getElementById('course-selector').addEventListener('change', (e) => {
-            const newCourse = e.target.value;
-            update(ref(db, 'users/' + currentUser.uid), { currentCourse: newCourse });
-            syncUserData();
-        });
-
-        // --- SISTEMA DE LIÇÕES ---
-        window.startLesson = function() {
-            const currentCourse = document.getElementById('course-selector').value;
-            currentLessonData = lessonsDB[currentCourse];
+        // --- INTERFACE DE LIÇÃO ---
+        window.startLesson = function(skill) {
+            const course = userData.currentCourse || 'en';
+            currentLessonData = lessonsDB[course][skill];
             currentStep = 0;
+            isAnswerChecked = false;
             document.getElementById('lesson-modal').classList.remove('hidden');
+            document.getElementById('lesson-main-content').classList.remove('hidden');
             renderStep();
-        }
+        };
 
         window.closeLesson = function() {
             document.getElementById('lesson-modal').classList.add('hidden');
-        }
+            document.getElementById('feedback-panel').classList.add('hidden');
+        };
 
         function renderStep() {
+            isAnswerChecked = false;
+            document.getElementById('feedback-panel').classList.add('hidden');
+            document.getElementById('lesson-submit').innerText = "Verificar";
+            document.getElementById('lesson-submit').className = "w-full max-w-md mx-auto duo-btn-blue text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider";
+
             if (currentStep >= currentLessonData.length) {
-                // Lição Finalizada!
-                alert("Parabéns! Você concluiu a lição e ganhou +10 XP!");
-                const totalXp = (userData.xp || 0) + 10;
-                update(ref(db, 'users/' + currentUser.uid), { xp: totalXp, streak: 1 });
-                syncUserData();
-                closeLesson();
+                document.getElementById('lesson-main-content').classList.add('hidden');
+                document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center";
+                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-2">🎉 Vitória!</h3><p>Liga Concluída! Ganhou +10 XP e +2 Lingots.</p>`;
+                document.getElementById('feedback-panel').classList.remove('hidden');
+                playSound('correct');
+                
+                document.getElementById('lesson-submit').innerText = "Finalizar";
+                document.getElementById('lesson-submit').onclick = function() {
+                    db.ref('users/' + currentUser.uid).update({ xp: (userData.xp || 0) + 10, lingots: (userData.lingots || 50) + 2, streak: (userData.streak || 0) + 1 });
+                    closeLesson();
+                    document.getElementById('lesson-submit').onclick = checkAnswer;
+                };
                 return;
             }
 
             const stepData = currentLessonData[currentStep];
             document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
             document.getElementById('lesson-question').innerText = stepData.q;
-            
+            speakText(stepData.q); // Fala a palavra da pergunta automaticamente
+
             const optionsContainer = document.getElementById('lesson-options');
             optionsContainer.innerHTML = '';
-            
             stepData.options.forEach((opt, index) => {
-                optionsContainer.innerHTML += `
-                    <button onclick="selectOption(${index})" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] hover:bg-[#f7f7f7] transition-all" data-index="${index}">
-                        ${opt}
-                    </button>
-                `;
+                optionsContainer.innerHTML += `<button onclick="selectOption(${index}, '${opt}')" class="option-btn w-full duo-card text-left font-bold py-4 px-6 rounded-2xl text-sm border-2 border-[#e5e5e5] bg-white" data-index="${index}">${opt}</button>`;
             });
-            
-            window.selectedOptionIndex = null;
+            selectedOptionIndex = null;
         }
 
-        window.selectOption = function(index) {
-            document.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]');
-                btn.classList.add('border-[#e5e5e5]');
-            });
+        window.selectOption = function(index, text) {
+            if (isAnswerChecked) return;
+            // Se for curso de espanhol ou ingles, fala a opção clicada caso seja técnica de escuta
+            if(userData.currentCourse === 'en' && selectedOptionIndex === null) speakText(text);
+
+            document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]'); btn.classList.add('border-[#e5e5e5]'); });
             const selectedBtn = document.querySelector(`[data-index="${index}"]`);
-            selectedBtn.classList.remove('border-[#e5e5e5]');
             selectedBtn.classList.add('border-[#1cb0f6]', 'bg-[#ddf4ff]');
-            window.selectedOptionIndex = index;
-        }
+            selectedOptionIndex = index;
+        };
 
         window.checkAnswer = function() {
-            if (window.selectedOptionIndex === null) {
-                alert("Selecione uma opção primeiro!");
-                return;
-            }
-            
+            if (selectedOptionIndex === null) return;
+            if (isAnswerChecked) { currentStep++; renderStep(); return; }
+
             const stepData = currentLessonData[currentStep];
-            if (window.selectedOptionIndex === stepData.correct) {
-                alert("Resposta Correta! Maravilhoso!");
-                currentStep++;
-                renderStep();
+            isAnswerChecked = true;
+            const panel = document.getElementById('feedback-panel');
+            
+            if (selectedOptionIndex === stepData.correct) {
+                playSound('correct');
+                panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-green-100 text-green-700";
+                document.getElementById('feedback-text').innerText = "✨ Resposta correta! Parabéns.";
+                document.getElementById('lesson-submit').innerText = "Continuar";
+                document.getElementById('lesson-submit').className = "w-full max-w-md mx-auto duo-btn-green text-white font-extrabold py-4 px-6 rounded-2xl text-sm uppercase tracking-wider";
             } else {
-                alert(`Errado! A resposta correta era: ${stepData.options[stepData.correct]}`);
+                playSound('wrong');
+                panel.className = "w-full max-w-md mx-auto rounded-2xl p-4 bg-red-100 text-red-700";
+                document.getElementById('feedback-text').innerText = `😢 Errado! Resposta ideal: ${stepData.options[stepData.correct]}`;
+                document.getElementById('lesson-submit').innerText = "Entendi";
+            }
+            panel.classList.remove('hidden');
+        };
+
+        // --- SISTEMA DE RANKING & LIGA REAL DE AMIGOS ---
+        window.addFriend = function() {
+            const targetEmail = document.getElementById('friend-search-input').value.trim();
+            const msgEl = document.getElementById('friend-status-msg');
+            if (!targetEmail) return;
+
+            db.ref('users').orderByChild('email').equalTo(targetEmail).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const friendUid = Object.keys(snapshot.val())[0];
+                    if (friendUid === currentUser.uid) return msgEl.innerText = "Você já está no topo!";
+                    db.ref('users/' + currentUser.uid + '/friends/' + friendUid).set(true);
+                    msgEl.innerText = "Adicionado à sua liga!";
+                    document.getElementById('friend-search-input').value = "";
+                } else {
+                    msgEl.innerText = "E-mail não localizado.";
+                }
+            });
+        };
+
+        window.sendGift = function(friendUid) {
+            if ((userData.lingots || 0) < 5) return alert("Lingots insuficientes!");
+            
+            // Tira 5 lingots do usuário atual
+            db.ref('users/' + currentUser.uid).update({ lingots: userData.lingots - 5 });
+            
+            // Adiciona 5 lingots para o amigo no nó dele
+            db.ref('users/' + friendUid + '/lingots').transaction((currentLingots) => {
+                return (currentLingots || 0) + 5;
+            });
+            alert("Presente de 5 💎 enviado!");
+        };
+
+        function loadFriendsRanking() {
+            const container = document.getElementById('friends-list');
+            container.innerHTML = '';
+            
+            let listToRender = [];
+            
+            // Inclui o próprio perfil no ranking
+            listToRender.push({ uid: currentUser.uid, avatar: userData.avatar, displayName: (userData.displayName || "Você"), xp: (userData.xp || 0), email: userData.email, isMe: true });
+
+            if (userData.friends) {
+                const promises = Object.keys(userData.friends).map(fUid => {
+                    return db.ref('users/' + fUid).once('value').then(snap => {
+                        if (snap.exists()) {
+                            const fData = snap.val();
+                            listToRender.push({ uid: fUid, avatar: fData.avatar, displayName: fData.displayName, xp: fData.xp || 0, email: fData.email, isMe: false });
+                        }
+                    });
+                });
+
+                Promise.all(promises).then(() => renderRanking(listToRender));
+            } else {
+                renderRanking(listToRender);
             }
         }
 
-        // --- SISTEMA DE ABAS ---
+        function renderRanking(list) {
+            // Ordena do maior para o menor XP
+            list.sort((a, b) => b.xp - a.xp);
+            
+            const container = document.getElementById('friends-list');
+            container.innerHTML = '';
+
+            list.forEach((user, index) => {
+                const positionStyle = index === 0 ? 'text-amber-500 text-xl' : index === 1 ? 'text-gray-400 text-lg' : index === 2 ? 'text-amber-700 text-md' : 'text-gray-400';
+                container.innerHTML += `
+                    <div class="duo-card rounded-2xl p-4 flex items-center justify-between ${user.isMe ? 'bg-blue-50 border-blue-300' : 'bg-white'}">
+                        <div class="flex items-center gap-4">
+                            <span class="font-extrabold w-6 text-center ${positionStyle}">${index + 1}</span>
+                            <span class="text-3xl bg-gray-100 p-2 rounded-full">${user.avatar || '🦉'}</span>
+                            <div>
+                                <h4 class="font-extrabold text-base">${user.displayName || 'Estudante'} ${user.isMe ? '(Você)' : ''}</h4>
+                                <p class="text-xs text-gray-400 font-bold">${user.email}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right font-extrabold text-sm text-orange-500">⚡ ${user.xp} XP</div>
+                            ${!user.isMe ? `<button onclick="sendGift('${user.uid}')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-2 py-1 rounded-xl text-xs font-bold transition-all">🎁 Dar 5💎</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
         window.switchTab = function(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-        }
+        };
     </script>
 </body>
 </html>
