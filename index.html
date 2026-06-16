@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duolingo Meta - Multi-Disciplinar</title>
+    <title>Duolingo Meta - Edição Infinita</title>
     
     <!-- Google Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -89,6 +89,8 @@
                     <label class="block text-xs font-extrabold text-[#afafaf] uppercase tracking-wider mb-2">O que deseja estudar hoje?</label>
                     <select id="course-selector" class="bg-white border-2 border-[#e5e5e5] rounded-xl px-4 py-2 font-bold focus:outline-none w-full sm:w-auto">
                         <option value="en">🇺🇸 Idiomas: Inglês</option>
+                        <option value="es">🇪🇸 Idiomas: Espanhol</option>
+                        <option value="ja">🇯🇵 Idiomas: Japonês</option>
                         <option value="ko">🇰🇷 Idiomas: Coreano</option>
                         <option value="matematica">🔢 Exatas: Matemática</option>
                         <option value="xadrez">👑 Estratégia: Xadrez</option>
@@ -96,7 +98,7 @@
                 </div>
 
                 <!-- Árvore Dinâmica de Fases -->
-                <div id="dynamic-skills-tree" class="flex flex-col items-center gap-6 py-4"></div>
+                <div id="dynamic-skills-tree" class="flex flex-col items-center gap-8 py-6"></div>
 
                 <!-- Modal de Estudo Adaptativo -->
                 <div id="lesson-modal" class="hidden fixed inset-0 bg-white z-50 p-6 flex flex-col justify-between">
@@ -212,7 +214,7 @@
 
         const defaultAvatar = { skin: "#ffdbac", hair: "short", hairColor: "#4a3728", clothing: "#58cc02", accessory: "none", bg: "#ddf4ff" };
 
-        // BANCO DE DADOS ATUALIZADO COM VARIADAS ATIVIDADES (10 QUESTÕES POR SKILL)
+        // BANCO DE DADOS COMPLETO COM TODOS OS IDIOMAS E VARIADAS MATÉRIAS (10 QUESTÕES POR SKILL)
         const lessonsDB = {
             en: {
                 saudaçoes: [
@@ -226,6 +228,50 @@
                     { q: 'Complete: How __ you? (Como você está?)', type: 'lacuna', options: ['is', 'are', 'am'], correct: 1 },
                     { q: 'See you later', type: 'escolha', options: ['Até logo', 'Bom dia', 'Até amanhã'], correct: 0 },
                     { q: 'Nice to meet you', type: 'escolha', options: ['Prazer em conhecer você', 'Obrigado por tudo', 'Até breve'], correct: 0 }
+                ],
+                familia: [
+                    { q: 'Mother', type: 'escolha', options: ['Pai', 'Mãe', 'Irmão'], correct: 1 },
+                    { q: 'Father significa "Tio".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
+                    { q: 'Brother', type: 'escolha', options: ['Irmão', 'Primo', 'Avô'], correct: 0 },
+                    { q: 'Complete a lacuna: My sister is __ (Minha irmã é legal)', type: 'lacuna', options: ['nice', 'car', 'blue'], correct: 0 },
+                    { q: 'Grandfather', type: 'escolha', options: ['Avó', 'Tio', 'Avô'], correct: 2 },
+                    { q: 'Son significa "Filho".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
+                    { q: 'Daughter', type: 'escolha', options: ['Filha', 'Sobrinha', 'Tia'], correct: 0 },
+                    { q: 'Complete: He is my __ (Ele é meu pai)', type: 'lacuna', options: ['father', 'mother', 'sister'], correct: 0 },
+                    { q: 'Family', type: 'escolha', options: ['Amigos', 'Família', 'Vizinhos'], correct: 1 },
+                    { q: 'Uncle significa "Primo".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 }
+                ]
+            },
+            es: {
+                saludos: [
+                    { q: 'Hola', type: 'escolha', options: ['Tchau', 'Olá', 'Obrigado'], correct: 1 },
+                    { q: 'Buenos días significa "Boa noite".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
+                    { q: 'Gracias', type: 'escolha', options: ['Por favor', 'De nada', 'Obrigado'], correct: 2 },
+                    { q: 'Complete: ¿Cómo __ estás? (Como você está?)', type: 'lacuna', options: ['tú', 'yo', 'él'], correct: 0 },
+                    { q: 'Adiós', type: 'escolha', options: ['Bem-vindo', 'Adeus', 'Até logo'], correct: 1 },
+                    { q: 'Por favor significa o mesmo em português e espanhol.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
+                    { q: 'Lo siento', type: 'escolha', options: ['Desculpe', 'Prazer', 'Com licença'], correct: 0 },
+                    { q: 'Complete: Buenas __ (Boa tarde)', type: 'lacuna', options: ['tardes', 'noches', 'días'], correct: 0 },
+                    { q: '¿Qué tal?', type: 'escolha', options: ['Tudo bem? / Que tal?', 'Até mais', 'Onde fica?'], correct: 0 },
+                    { q: 'Mucho gusto significa "Muito obrigado".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 }
+                ],
+                comida_es: [
+                    { q: 'Manzana', type: 'escolha', options: ['Banana', 'Maçã', 'Uva'], correct: 1 },
+                    { q: 'Pan significa "Pão".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
+                ]
+            },
+            ja: {
+                hiragana: [
+                    { q: 'O caractere あ representa o som de:', type: 'escolha', options: ['A', 'I', 'U'], correct: 0 },
+                    { q: 'O caractere い representa o som de "O".', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 1 },
+                    { q: 'O caractere う representa o som de:', type: 'escolha', options: ['E', 'U', 'O'], correct: 1 },
+                    { q: 'Complete a sequência do alfabeto: あ, い, __, え, お', type: 'lacuna', options: ['う (U)', 'か (Ka)', 'ん (N)'], correct: 0 },
+                    { q: 'O caractere え representa o som de:', type: 'escolha', options: ['A', 'E', 'I'], correct: 1 },
+                    { q: 'O som "O" é escrito como お em hiragana.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
+                    { q: 'O caractere か representa o som de:', type: 'escolha', options: ['Sa', 'Ka', 'Ta'], correct: 1 },
+                    { q: 'Complete o som "Ki": __', type: 'lacuna', options: ['き', 'く', 'け'], correct: 0 },
+                    { q: 'O caractere す representa o som de:', type: 'escolha', options: ['Su', 'Se', 'So'], correct: 0 },
+                    { q: 'O hiragana é o principal alfabeto fonético do japonês.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
                 ]
             },
             ko: {
@@ -254,6 +300,10 @@
                     { q: 'Complete: 100 - __ = 25', type: 'lacuna', options: ['50', '75', '65'], correct: 1 },
                     { q: 'Quanto é 8 x 7?', type: 'escolha', options: ['54', '56', '62'], correct: 1 },
                     { q: 'A metade de 50 é 25.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
+                ],
+                algebra: [
+                    { q: 'Se x + 5 = 12, quanto vale x?', type: 'escolha', options: ['6', '7', '8'], correct: 1 },
+                    { q: 'Se 2x = 20, então x = 10.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
                 ]
             },
             xadrez: {
@@ -268,20 +318,48 @@
                     { q: 'Complete: O peão captura peças adversárias andando na __.', type: 'lacuna', options: ['diagonal', 'vertical', 'horizontal'], correct: 0 },
                     { q: 'A Torre se move em linhas retas (verticais e horizontais).', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 },
                     { q: 'Quantos peões cada jogador possui no início da partida?', type: 'escolha', options: ['6', '8', '10'], correct: 1 }
+                ],
+                estrategia: [
+                    { q: 'O que significa um "Gambito" no xadrez?', type: 'escolha', options: ['Sacrificar material para ganhar vantagem', 'Pedir empate', 'Mover duas peças ao mesmo tempo'], correct: 0 },
+                    { q: 'Controlar as 4 casas centrais do tabuleiro é fundamental na abertura.', type: 'v_f', options: ['Verdadeiro', 'Falso'], correct: 0 }
                 ]
             }
         };
 
+        // META DE EXPANSÃO DA ÁRVORE (REQUISITO DE XP PARA LIBERAR NOVAS FASES)
         const treeMeta = {
-            en: [{ id: 'saudaçoes', name: 'Saudações', icon: '💬', color: '#58cc02' }],
-            ko: [{ id: 'hangul', name: 'Alfabeto Hangul', icon: '🇰🇷', color: '#1cb0f6' }],
-            matematica: [{ id: 'aritmetica', name: 'Aritmética', icon: '🔢', color: '#ffc800' }],
-            xadrez: [{ id: 'regras', name: 'Regras Básicas', icon: '👑', color: 'orange' }]
+            en: [
+                { id: 'saudaçoes', name: 'Saudações', icon: '💬', color: '#58cc02', xpRequired: 0 },
+                { id: 'familia', name: 'Família', icon: '👨‍👩‍👧', color: '#1cb0f6', xpRequired: 20 },
+                { id: 'saudaçoes', name: 'Viagem (Em Breve)', icon: '✈️', color: '#ff4b4b', xpRequired: 50 },
+                { id: 'saudaçoes', name: 'Trabalho (Em Breve)', icon: '💼', color: '#ffc800', xpRequired: 80 }
+            ],
+            es: [
+                { id: 'saludos', name: 'Saludos Básicos', icon: '🇪🇸', color: '#ffc800', xpRequired: 0 },
+                { id: 'comida_es', name: 'Restaurante', icon: '🍏', color: '#58cc02', xpRequired: 20 },
+                { id: 'saludos', name: 'Conversación (Em Breve)', icon: '🗣️', color: '#1cb0f6', xpRequired: 60 }
+            ],
+            ja: [
+                { id: 'hiragana', name: 'Alfabeto Hiragana', icon: '🏮', color: '#ff4b4b', xpRequired: 0 },
+                { id: 'hiragana', name: 'Katakana (Em Breve)', icon: '🍣', color: '#58cc02', xpRequired: 40 }
+            ],
+            ko: [
+                { id: 'hangul', name: 'Alfabeto Hangul', icon: '🇰🇷', color: '#1cb0f6', xpRequired: 0 },
+                { id: 'hangul', name: 'Expressões (Em Breve)', icon: '🎵', color: '#ffc800', xpRequired: 30 }
+            ],
+            matematica: [
+                { id: 'aritmetica', name: 'Aritmética', icon: '🔢', color: '#58cc02', xpRequired: 0 },
+                { id: 'algebra', name: 'Álgebra Básica', icon: '📐', color: '#ffc800', xpRequired: 20 },
+                { id: 'aritmetica', name: 'Geometria (Em Breve)', icon: '🔵', color: '#1cb0f6', xpRequired: 50 }
+            ],
+            xadrez: [
+                { id: 'regras', name: 'Regras Básicas', icon: '👑', color: '#4a3728', xpRequired: 0 },
+                { id: 'estrategia', name: 'Táticas e Aberturas', icon: '⚔️', color: 'orange', xpRequired: 20 },
+                { id: 'regras', name: 'Finais de Jogo (Em Breve)', icon: '🏁', color: '#777', xpRequired: 60 }
+            ]
         };
 
-        function sanitizeEmail(email) {
-            return email.toLowerCase().replace(/\./g, ',');
-        }
+        function sanitizeEmail(email) { return email.toLowerCase().replace(/\./g, ','); }
 
         function generateAvatarSVG(config) {
             const cfg = config || defaultAvatar;
@@ -325,7 +403,7 @@
             }
         }
 
-        // --- AUTH & ATALHOS DE BUSCA DE EMAIL ---
+        // --- AUTH & CONFIG ---
         document.getElementById('btn-login-email').addEventListener('click', () => {
             auth.signInWithEmailAndPassword(document.getElementById('email-input').value, document.getElementById('password-input').value).catch(err => alert(err.message));
         });
@@ -384,18 +462,31 @@
             });
         }
 
-        // --- RENDERIZADOR DA ÁRVORE DE SKILLS DINÂMICA ---
+        // --- SISTEMA ATUALIZADO DE TRILHA INTELECTUAL POR XP ---
         function renderTree(courseKey) {
             const container = document.getElementById('dynamic-skills-tree');
             container.innerHTML = '';
             const skills = treeMeta[courseKey] || [];
+            const userXp = userData.xp || 0;
             
             skills.forEach((sk, idx) => {
                 const alignClass = idx % 2 === 0 ? '' : 'translate-x-12';
+                const isLocked = userXp < sk.xpRequired;
+                
+                let btnHTML = '';
+                if (isLocked) {
+                    // Fase bloqueada com cadeado
+                    btnHTML = `<button class="w-16 h-16 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xl font-bold cursor-not-allowed border-2 border-gray-400">🔒</button>`;
+                } else {
+                    // Fase aberta jogável
+                    btnHTML = `<button onclick="startLesson('${sk.id}')" style="background-color: ${sk.color}" class="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-lg transform hover:scale-105 transition-all">${sk.icon}</button>`;
+                }
+
                 container.innerHTML += `
-                    <div class="text-center ${alignClass}">
-                        <button onclick="startLesson('${sk.id}')" style="background-color: ${sk.color}" class="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-lg transform hover:scale-105 transition-all">${sk.icon}</button>
-                        <p class="font-extrabold mt-2 text-xs">${sk.name}</p>
+                    <div class="text-center ${alignClass} flex flex-col items-center">
+                        ${btnHTML}
+                        <p class="font-extrabold mt-2 text-xs text-gray-700">${sk.name}</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">${sk.xpRequired > 0 ? `Requer ${sk.xpRequired} XP` : 'Livre'}</p>
                     </div>
                 `;
             });
@@ -405,10 +496,11 @@
             db.ref('users/' + currentUser.uid).update({ currentCourse: e.target.value });
         });
 
-        // --- ENGINE DE LIÇÕES COM TIPOS DE ATIVIDADES ---
+        // --- ENGINE DE LIÇÕES ---
         window.startLesson = function(skill) {
             const course = userData.currentCourse || 'en';
             currentLessonData = lessonsDB[course][skill]; 
+            if (!currentLessonData || currentLessonData.length === 0) { alert("Esta fase está sendo construída!"); return; }
             currentStep = 0; isAnswerChecked = false;
             document.getElementById('lesson-modal').classList.remove('hidden');
             renderStep();
@@ -420,24 +512,24 @@
             isAnswerChecked = false;
             document.getElementById('feedback-panel').classList.add('hidden');
             document.getElementById('lesson-submit').innerText = "Verificar";
-            document.getElementById('lesson-counter').innerText = `${currentStep + 1}/10`;
-            document.getElementById('lesson-progress').style.width = `${(currentStep / 10) * 100}%`;
+            document.getElementById('lesson-counter').innerText = `${currentStep + 1}/${currentLessonData.length}`;
+            document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
 
-            if (currentStep >= 10) {
+            if (currentStep >= currentLessonData.length) {
                 document.getElementById('lesson-progress').style.width = '100%';
                 document.getElementById('feedback-panel').className = "w-full max-w-md mx-auto rounded-2xl p-6 bg-green-100 text-green-700 text-center animate-bounce";
-                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Lição Concluída!</h3><p>Parabéns! Você ganhou +10 XP.</p>`;
+                document.getElementById('feedback-panel').innerHTML = `<h3 class="text-2xl font-extrabold mb-1">🔥 Perfeito!</h3><p>Fase batida! Você ganhou +10 XP.</p>`;
                 document.getElementById('feedback-panel').classList.remove('hidden');
                 playSound('correct');
 
-                document.getElementById('lesson-submit').innerText = "Fechar e Computar";
+                document.getElementById('lesson-submit').innerText = "Concluir e Computar";
                 document.getElementById('lesson-submit').onclick = function() {
                     const hoje = new Date().toDateString();
                     let novaOfensiva = userData.streak || 0;
                     if (userData.lastLessonDate !== hoje) { novaOfensiva++; }
 
                     db.ref('users/' + currentUser.uid).update({ xp: (userData.xp || 0) + 10, streak: novaOfensiva, lastLessonDate: hoje });
-                    db.ref('public_feed').push({ uid: currentUser.uid, userName: userData.displayName || "Estudante", avatar: userData.avatar || defaultAvatar, msg: `completou a trilha de estudo e alcançou ${novaOfensiva} dias de Ofensiva! 🚀`, timestamp: Date.now(), likes: 0 });
+                    db.ref('public_feed').push({ uid: currentUser.uid, userName: userData.displayName || "Estudante", avatar: userData.avatar || defaultAvatar, msg: `ganhou mais +10 XP e está destravando novas lições! 🚀`, timestamp: Date.now(), likes: 0 });
 
                     closeLesson();
                     document.getElementById('lesson-submit').onclick = checkAnswer;
@@ -448,7 +540,6 @@
             const stepData = currentLessonData[currentStep];
             document.getElementById('lesson-question').innerText = stepData.q;
             
-            // Define o Badge do Tipo de Atividade
             const badge = document.getElementById('activity-type-badge');
             if (stepData.type === 'v_f') { badge.innerText = "🤔 Verdadeiro ou Falso"; badge.className = "inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-extrabold uppercase"; }
             else if (stepData.type === 'lacuna') { badge.innerText = "🧩 Complete a Lacuna"; badge.className = "inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-extrabold uppercase"; }
@@ -491,7 +582,7 @@
             panel.classList.remove('hidden');
         };
 
-        // --- SISTEMA CORRIGIDO DE ADICIONAR AMIGO (MÉTODO INSTANTÂNEO POR ATALHO) ---
+        // --- BUSCA DIRETA E SEGURA DE AMIGOS ---
         window.sendFriendRequest = function() {
             const targetEmail = document.getElementById('friend-search-input').value.trim();
             const msgEl = document.getElementById('social-status-msg');
@@ -512,9 +603,7 @@
                         msgEl.innerText = "Boa! Convite enviado com sucesso. Avise seu irmão!";
                         document.getElementById('friend-search-input').value = "";
                     });
-                } else {
-                    msgEl.innerText = "E-mail não encontrado. Certifique-se de que ele já criou a conta.";
-                }
+                } else { msgEl.innerText = "E-mail não encontrado. Verifique a digitação."; }
             }).catch(() => { msgEl.innerText = "Erro na busca."; });
         };
 
@@ -534,7 +623,7 @@
                         const req = requests[senderUid];
                         listContainer.innerHTML += `
                             <div class="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-amber-200">
-                                <div class="text-xs text-amber-900"><b class="text-sm">${req.fromName}</b> quer ser seu amigo!</div>
+                                <div class="text-xs text-amber-900"><b class="text-sm">${req.fromName}</b> enviou convite.</div>
                                 <div class="flex gap-1">
                                     <button onclick="acceptFriend('${senderUid}')" class="bg-[#58cc02] text-white text-xs px-2.5 py-1 font-bold rounded-lg uppercase">Aceitar</button>
                                     <button onclick="rejectFriend('${senderUid}')" class="bg-gray-200 text-gray-600 text-xs px-2.5 py-1 font-bold rounded-lg">Recusar</button>
@@ -615,7 +704,7 @@
                             </div>
                             <div class="flex gap-2 items-center text-xs">
                                 <button onclick="likeFeedItem('${feedId}')" class="bg-red-50 text-red-500 px-3 py-1.5 rounded-xl font-bold">❤️ (${f.likes || 0})</button>
-                                <input id="reply-input-${feedId}" type="text" placeholder="Responda para parabenizar..." class="flex-1 bg-gray-100 rounded-xl px-3 py-1.5 focus:outline-none focus:bg-white border text-xs font-bold">
+                                <input id="reply-input-${feedId}" type="text" placeholder="Parabenizar..." class="flex-1 bg-gray-100 rounded-xl px-3 py-1.5 focus:outline-none focus:bg-white border text-xs font-bold">
                                 <button onclick="commentFeedItem('${feedId}')" class="bg-[#1cb0f6] text-white px-3 py-1.5 rounded-xl font-bold">Enviar</button>
                             </div>
                             <div class="space-y-1 pl-2 border-l-2 border-gray-200">${commentsHTML}</div>
