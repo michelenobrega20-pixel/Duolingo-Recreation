@@ -86,6 +86,8 @@
                     <select id="course-selector" class="bg-white border-2 border-[#e5e5e5] rounded-xl px-4 py-2 font-bold focus:outline-none">
                         <option value="en">🇺🇸 Inglês</option>
                         <option value="es">🇪🇸 Espanhol</option>
+                        <option value="fr">🇫🇷 Francês</option>
+                        <option value="ja">🇯🇵 Japonês</option>
                     </select>
                 </div>
 
@@ -231,6 +233,32 @@
                 pronuncia: [{ q: 'Niño', options: ['Menino', 'Menina', 'Carro'], correct: 0 }],
                 palavras: [{ q: 'Gracias', options: ['Por favor', 'Obrigado', 'Olá'], correct: 1 }],
                 viagem: [{ q: 'Avión', options: ['Trem', 'Carro', 'Avião'], correct: 2 }]
+            },
+            fr: {
+                saudaçoes: [
+                    { q: 'Bonjour', options: ['Bom dia / Olá', 'Boa noite', 'Obrigado'], correct: 0 },
+                    { q: 'Salut', options: ['Por favor', 'Oi / Tchau', 'De nada'], correct: 1 }
+                ],
+                comidas: [
+                    { q: 'Croissant', options: ['Pão', 'Croissant', 'Queijo'], correct: 1 },
+                    { q: 'Eau', options: ['Água', 'Vinho', 'Leite'], correct: 0 }
+                ],
+                pronuncia: [{ q: 'Merci', options: ['De nada', 'Por favor', 'Obrigado'], correct: 2 }],
+                palavras: [{ q: 'S\'il vous plaît', options: ['Muito obrigado', 'Por favor', 'Com licença'], correct: 1 }],
+                viagem: [{ q: 'Hôtel', options: ['Aeroporto', 'Hotel', 'Passaporte'], correct: 1 }]
+            },
+            ja: {
+                saudaçoes: [
+                    { q: 'こんにちは (Konnichiwa)', options: ['Boa noite', 'Obrigado', 'Olá / Boa tarde'], correct: 2 },
+                    { q: 'ありがとう (Arigatou)', options: ['Obrigado', 'Desculpe', 'Por favor'], correct: 0 }
+                ],
+                comidas: [
+                    { q: 'すし (Sushi)', options: ['Arroz', 'Sushi', 'Peixe'], correct: 1 },
+                    { q: 'みず (Mizu)', options: ['Água', 'Chá Verde', 'Leite'], correct: 0 }
+                ],
+                pronuncia: [{ q: 'さようなら (Sayounara)', options: ['Olá', 'Adeus / Tchau', 'Bom dia'], correct: 1 }],
+                palavras: [{ q: 'はい (Hai)', options: ['Não', 'Talvez', 'Sim'], correct: 2 }],
+                viagem: [{ q: 'パスポート (Pasupooto)', options: ['Passaporte', 'Avião', 'Bilhete'], correct: 0 }]
             }
         };
 
@@ -243,14 +271,12 @@
             gain.connect(ctx.destination);
 
             if (type === 'correct') {
-                // Som de acerto (Plim!)
-                osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
                 gain.gain.setValueAtTime(0.3, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
                 osc.start(); osc.stop(ctx.currentTime + 0.4);
             } else if (type === 'wrong') {
-                // Som de erro (Bléh)
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(150, ctx.currentTime);
                 osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
@@ -260,13 +286,18 @@
             }
         }
 
-        // --- TEXT TO SPEECH (VOZ DO DUOLINGO) ---
+        // --- TEXT TO SPEECH SOTAQUE DINÂMICO ---
         function speakText(text) {
             if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel(); // Para vozes anteriores
+            window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             const course = userData.currentCourse || 'en';
-            utterance.lang = course === 'en' ? 'en-US' : 'es-ES';
+            
+            if (course === 'en') utterance.lang = 'en-US';
+            else if (course === 'es') utterance.lang = 'es-ES';
+            else if (course === 'fr') utterance.lang = 'fr-FR';
+            else if (course === 'ja') utterance.lang = 'ja-JP';
+            
             window.speechSynthesis.speak(utterance);
         }
 
@@ -377,7 +408,7 @@
             const stepData = currentLessonData[currentStep];
             document.getElementById('lesson-progress').style.width = `${(currentStep / currentLessonData.length) * 100}%`;
             document.getElementById('lesson-question').innerText = stepData.q;
-            speakText(stepData.q); // Fala a palavra da pergunta automaticamente
+            speakText(stepData.q);
 
             const optionsContainer = document.getElementById('lesson-options');
             optionsContainer.innerHTML = '';
@@ -389,8 +420,7 @@
 
         window.selectOption = function(index, text) {
             if (isAnswerChecked) return;
-            // Se for curso de espanhol ou ingles, fala a opção clicada caso seja técnica de escuta
-            if(userData.currentCourse === 'en' && selectedOptionIndex === null) speakText(text);
+            speakText(text);
 
             document.querySelectorAll('.option-btn').forEach(btn => { btn.classList.remove('border-[#1cb0f6]', 'bg-[#ddf4ff]'); btn.classList.add('border-[#e5e5e5]'); });
             const selectedBtn = document.querySelector(`[data-index="${index}"]`);
@@ -443,10 +473,8 @@
         window.sendGift = function(friendUid) {
             if ((userData.lingots || 0) < 5) return alert("Lingots insuficientes!");
             
-            // Tira 5 lingots do usuário atual
             db.ref('users/' + currentUser.uid).update({ lingots: userData.lingots - 5 });
             
-            // Adiciona 5 lingots para o amigo no nó dele
             db.ref('users/' + friendUid + '/lingots').transaction((currentLingots) => {
                 return (currentLingots || 0) + 5;
             });
@@ -458,8 +486,6 @@
             container.innerHTML = '';
             
             let listToRender = [];
-            
-            // Inclui o próprio perfil no ranking
             listToRender.push({ uid: currentUser.uid, avatar: userData.avatar, displayName: (userData.displayName || "Você"), xp: (userData.xp || 0), email: userData.email, isMe: true });
 
             if (userData.friends) {
@@ -479,7 +505,6 @@
         }
 
         function renderRanking(list) {
-            // Ordena do maior para o menor XP
             list.sort((a, b) => b.xp - a.xp);
             
             const container = document.getElementById('friends-list');
